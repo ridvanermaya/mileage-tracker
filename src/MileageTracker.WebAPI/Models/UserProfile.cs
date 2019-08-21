@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Identity;
 namespace MileageTracker.WebAPI.Models
 {
     [Table("UserProfile")]
-    public class UserPofile
+    public class UserProfile
     {
         [Key]
         public int UserProfileId { get; set; }

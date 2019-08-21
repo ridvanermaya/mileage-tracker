@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Identity;
 namespace MileageTracker.WebAPI.Models
 {
     [Table("Service")]
-    public class Services
+    public class Service
     {
         [Key]
         public int ServiceId { get; set; } 
