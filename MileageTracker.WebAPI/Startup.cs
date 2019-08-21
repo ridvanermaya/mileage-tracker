@@ -12,6 +12,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Microsoft.EntityFrameworkCore;
+using MileageTracker.WebAPI.Models;
 
 namespace MileageTracker.WebAPI
 {
@@ -27,8 +29,10 @@ namespace MileageTracker.WebAPI
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddAuthentication(AzureADB2CDefaults.BearerAuthenticationScheme)
-                .AddAzureADB2CBearer(options => Configuration.Bind("AzureAdB2C", options));
+            services.AddDbContext<ApplicationDbContext>(options =>
+                options.UseSqlServer(
+                    Configuration.GetConnectionString("DefaultConnection")
+                ));
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
         }
 
