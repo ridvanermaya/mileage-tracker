@@ -17,14 +17,14 @@ namespace MileageTracker.WebAPI.Controllers
 
         [HttpPost]
         [AllowAnonymous]
-        public async Task<IActionResult> Post(UserModel value)
+        public async Task<IActionResult> Post(UserModel user)
         {
             var identityUser = new IdentityUser()
             {
-                Email = value.Email,
-                UserName = value.UserName
+                UserName = user.Email,
+                Email = user.Email,
             };
-            var result = await _userManager.CreateAsync(identityUser, value.Password);
+            var result = await _userManager.CreateAsync(identityUser, user.Password);
 
             if (!result.Succeeded)
             {
@@ -45,8 +45,7 @@ namespace MileageTracker.WebAPI.Controllers
 
     public class UserModel
     {
-        public string UserName { get; set; }
-        public string Password { get; set; }
         public string Email { get; set; }
+        public string Password { get; set; }
     }
 }
