@@ -53,7 +53,7 @@ namespace MileageTracker.WebAPI.Controllers
             newMileageRecord.EndDateTime = mileageRecord.EndDateTime;
             newMileageRecord.UserId = userId;
 
-            _context.MileageRecords.Add(newMileageRecord);
+            await _context.MileageRecords.AddAsync(newMileageRecord);
             await _context.SaveChangesAsync();
 
             return NoContent();
