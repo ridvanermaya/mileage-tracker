@@ -23,7 +23,7 @@ namespace MileageTracker.WebAPI.Controllers
         public async Task<ActionResult<IEnumerable<MileageRecord>>> GetMileageRecords()
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            userId = "edeba505-384c-4c3d-95cc-1872ebb73910";
+            userId = "ce693acd-d08d-4303-9e5d-a26b832abc38";
             var mileageRecords = await _context.MileageRecords.Where(x => x.UserId == userId).Include(x => x.User).ToListAsync();
 
             return mileageRecords;
@@ -45,7 +45,7 @@ namespace MileageTracker.WebAPI.Controllers
         public async Task<ActionResult<MileageRecord>> AddMileageRecord(MileageRecord mileageRecord)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            userId = "edeba505-384c-4c3d-95cc-1872ebb73910";
+            userId = "ce693acd-d08d-4303-9e5d-a26b832abc38";
 
             MileageRecord newMileageRecord = new MileageRecord();
             
@@ -65,7 +65,7 @@ namespace MileageTracker.WebAPI.Controllers
         public async Task<ActionResult> DeleteMileageRecord(int mileageRecordId)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            userId = "edeba505-384c-4c3d-95cc-1872ebb73910";
+            userId = "ce693acd-d08d-4303-9e5d-a26b832abc38";
             var foundMileageRecord = await _context.MileageRecords.FirstOrDefaultAsync(x => x.MileageRecordId == mileageRecordId && x.UserId == userId);
 
             if (foundMileageRecord == null)
