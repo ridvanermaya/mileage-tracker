@@ -9,6 +9,8 @@ namespace MileageTracker.WebAPI.Models
     {
         [Key]
         public int ServiceId { get; set; } 
+        [Display(Name = "Service Name")]
+        public string Name { get; set; }
         [ForeignKey(nameof(User))]
         public string UserId { get; set; }
         public IdentityUser User { get; set; }

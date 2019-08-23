@@ -238,6 +238,8 @@ namespace MileageTracker.WebAPI.Migrations
                         .ValueGeneratedOnAdd()
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
+                    b.Property<string>("Name");
+
                     b.Property<string>("UserId");
 
                     b.HasKey("ServiceId");
