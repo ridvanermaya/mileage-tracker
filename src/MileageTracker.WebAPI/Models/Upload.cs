@@ -14,6 +14,10 @@ namespace MileageTracker.WebAPI.Models
         public string ImageUrl { get; set; }
         [Display(Name = "Upload DateTime")]
         public DateTime UploadDate { get; set; }
+        [Display(Name = "Upload Description")]
+        public string UploadDescription { get; set; }
+        [Display(Name = "Price")]
+        public double Price { get; set; }
         [ForeignKey(nameof(User))]
         public string UserId { get; set; }
         public IdentityUser User { get; set; }
