@@ -58,6 +58,9 @@ namespace MileageTracker.WebAPI.Controllers
                 return BadRequest();
             }
 
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            userId = "ce693acd-d08d-4303-9e5d-a26b832abc38";
+
             _context.Entry(address).State = EntityState.Modified;
             await _context.SaveChangesAsync();
 
