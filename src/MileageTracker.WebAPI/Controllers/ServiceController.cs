@@ -9,7 +9,7 @@ using MileageTracker.WebAPI.Models;
 namespace MileageTracker.WebAPI.Controllers
 {
     [ApiController]
-    [Route("api/[controller")]
+    [Route("api/[controller]")]
     public class ServiceController : ControllerBase
     {
         public readonly ApplicationDbContext _context;
@@ -23,14 +23,9 @@ namespace MileageTracker.WebAPI.Controllers
         public async Task<ActionResult<IEnumerable<Service>>> GetServices()
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            userId = "edeba505-384c-4c3d-95cc-1872ebb73910";
+            userId = "ce693acd-d08d-4303-9e5d-a26b832abc38";
 
             var services = await _context.Services.Where(x => x.UserId == userId).Include(x => x.User).ToListAsync();
-
-            if (services == null)
-            {
-                return NotFound();
-            }
 
             return services;
         }
@@ -39,7 +34,7 @@ namespace MileageTracker.WebAPI.Controllers
         public async Task<ActionResult<Service>> GetServiceById(int serviceId)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            userId = "edeba505-384c-4c3d-95cc-1872ebb73910";
+            userId = "ce693acd-d08d-4303-9e5d-a26b832abc38";
 
             var service = await _context.Services.Include(x => x.User).FirstOrDefaultAsync(x => x.ServiceId == serviceId && x.UserId == userId);
 
@@ -51,12 +46,20 @@ namespace MileageTracker.WebAPI.Controllers
             return service;
         }
 
+        [HttpPost]
         public async Task<ActionResult<Service>> AddService(Service service)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            userId = "edeba505-384c-4c3d-95cc-1872ebb73910";
+            userId = "ce693acd-d08d-4303-9e5d-a26b832abc38";
 
-            var newService = new Service();
+            var newService = await _context.Services.FirstOrDefaultAsync(x => x.Name == service.Name && x.UserId == userId);
+
+            if (newService != null)
+            {
+                return NoContent();
+            }
+
+            newService = new Service();
 
             newService.Name = service.Name;
             newService.UserId = userId;
@@ -67,10 +70,11 @@ namespace MileageTracker.WebAPI.Controllers
             return NoContent();
         }
 
+        [HttpDelete("{ServiceId}")]
         public async Task<ActionResult<Service>> DeleteService(int serviceId)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            userId = "edeba505-384c-4c3d-95cc-1872ebb73910";
+            userId = "ce693acd-d08d-4303-9e5d-a26b832abc38";
 
             var service = await _context.Services.FirstOrDefaultAsync(x => x.ServiceId == serviceId && x.UserId == userId);
 
