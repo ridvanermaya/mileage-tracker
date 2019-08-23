@@ -24,7 +24,7 @@ namespace MileageTracker.WebAPI.Controllers
             string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             userId = "edeba505-384c-4c3d-95cc-1872ebb73910";
 
-            var address = await _context.Addresses.Where(x => x.UserId == userId).Include(x => x.User).FirstOrDefaultAsync();
+            var address = await _context.Addresses.Include(x => x.User).FirstOrDefaultAsync();
 
             if (userId == null)
             {
@@ -44,7 +44,7 @@ namespace MileageTracker.WebAPI.Controllers
         {
             string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-            var address = await _context.Addresses.Where(x => x.AddressId == addressId).Include(x => x.User).FirstOrDefaultAsync();
+            var address = await _context.Addresses.Include(x => x.User).FirstOrDefaultAsync(x => x.AddressId == addressId && x.UserId == userId);
 
             if (address == null)
             {
