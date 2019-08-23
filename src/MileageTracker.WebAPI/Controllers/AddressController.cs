@@ -21,8 +21,30 @@ namespace MileageTracker.WebAPI.Controllers
         [HttpGet]
         public async Task<ActionResult<Address>> GetAddress()
         {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var address = await _context.Addresses.Where(x => x.UserId == userId).FirstOrDefaultAsync();
+            string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            userId = "edeba505-384c-4c3d-95cc-1872ebb73910";
+
+            var address = await _context.Addresses.Where(x => x.UserId == userId).Include(x => x.User).FirstOrDefaultAsync();
+
+            if (userId == null)
+            {
+                return Unauthorized();
+            }
+
+            if (address == null)
+            {
+                return NotFound();
+            }
+
+            return address;
+        }
+
+        [HttpGet("{AddressId}")]
+        public async Task<ActionResult<Address>> GetAddressById(int addressId)
+        {
+            string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            var address = await _context.Addresses.Where(x => x.AddressId == addressId).Include(x => x.User).FirstOrDefaultAsync();
 
             if (address == null)
             {
@@ -33,7 +55,7 @@ namespace MileageTracker.WebAPI.Controllers
         }
 
         [HttpPut("{AddressId}")]
-        public async Task<ActionResult<Address>> EditAddress(int addressId, Address address)
+        public async Task<ActionResult> EditAddress(int addressId, Address address)
         {
             if (addressId != address.AddressId)
             {
@@ -47,9 +69,10 @@ namespace MileageTracker.WebAPI.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<Address>> PostAddress(Address address)
+        public async Task<ActionResult<Address>> AddAddress(Address address)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            userId = "edeba505-384c-4c3d-95cc-1872ebb73910";
             var newAddress = await _context.Addresses.FirstOrDefaultAsync(x => x.UserId == userId);
 
             if (newAddress != null)
@@ -75,7 +98,8 @@ namespace MileageTracker.WebAPI.Controllers
         [HttpDelete("{AddressId}")]
         public async Task<ActionResult<Address>> DeleteAddress(int addressId)
         {
-            var foundAddress = await _context.Addresses.FindAsync(addressId);
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var foundAddress = await _context.Addresses.FirstOrDefaultAsync(x => x.AddressId == addressId && x.UserId == userId);
 
             if (foundAddress == null)
             {
