@@ -22,18 +22,13 @@ namespace MileageTracker.WebAPI.Controllers
         public async Task<ActionResult<Address>> GetAddress()
         {
             string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            userId = "edeba505-384c-4c3d-95cc-1872ebb73910";
+            userId = "ce693acd-d08d-4303-9e5d-a26b832abc38";
 
             var address = await _context.Addresses.Include(x => x.User).FirstOrDefaultAsync();
 
             if (userId == null)
             {
                 return Unauthorized();
-            }
-
-            if (address == null)
-            {
-                return NotFound();
             }
 
             return address;
@@ -43,6 +38,7 @@ namespace MileageTracker.WebAPI.Controllers
         public async Task<ActionResult<Address>> GetAddressById(int addressId)
         {
             string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            userId = "ce693acd-d08d-4303-9e5d-a26b832abc38";
 
             var address = await _context.Addresses.Include(x => x.User).FirstOrDefaultAsync(x => x.AddressId == addressId && x.UserId == userId);
 
@@ -72,7 +68,7 @@ namespace MileageTracker.WebAPI.Controllers
         public async Task<ActionResult<Address>> AddAddress(Address address)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            userId = "edeba505-384c-4c3d-95cc-1872ebb73910";
+            userId = "ce693acd-d08d-4303-9e5d-a26b832abc38";
             var newAddress = await _context.Addresses.FirstOrDefaultAsync(x => x.UserId == userId);
 
             if (newAddress != null)
@@ -99,6 +95,7 @@ namespace MileageTracker.WebAPI.Controllers
         public async Task<ActionResult<Address>> DeleteAddress(int addressId)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            userId = "ce693acd-d08d-4303-9e5d-a26b832abc38";
             var foundAddress = await _context.Addresses.FirstOrDefaultAsync(x => x.AddressId == addressId && x.UserId == userId);
 
             if (foundAddress == null)
