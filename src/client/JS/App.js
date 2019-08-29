@@ -1,5 +1,5 @@
 $(`#navbar`).load(`Navbar.html`);
-GetServices();
+GetServicesHome();
 
 let apiKey = "";
 let path = new Array();
@@ -44,7 +44,7 @@ function EndTracking() {
     let snappedPointsCount = latLongs.length;
     
     $(`#btn-content`).empty();
-    GetServices();
+    GetServicesHome();
     // $(`#btn-content`).append(startTrackingButton);
 
     // needs to be uncommented after testing
@@ -139,7 +139,7 @@ function DegreeToRadius(deg) {
     return deg * (Math.PI/180)
 }
 
-function GetServices() {
+function GetServicesHome() {
     let selectService = `<div id="select-service" class="form-group" style="width: 100%; margin: auto; display: block;"></div>`;
     let startTrackingButton = `<button class="btn btn-outline-primary" style="border-radius: 50%; height:100px; width: 100px; display: block; margin: auto;" onclick="StartTracking()" type="button">Start Tracking</button>`;
     let selectInput = `<select id="select-input" class="form-control" style="width: auto; margin: auto; margin-bottom: 5px;"></select`;
@@ -167,38 +167,39 @@ function Home() {
     $(`#btn-content`).empty();
     $(`#select-service`).empty();
     $(`#mileage-records`).empty();
-    GetServices();
+    $(`#profile`).empty();
+    GetServicesHome();
 }
 
 function MileageRecords() {
     $(`#navbar`).load(`Navbar.html`);
     $(`#btn-content`).empty();
     $(`#mileage-records`).empty();
+    $(`#profile`).empty();
     let hr = `<hr/ class="mt-0">`
     let header = `<h5 class="text-center mt-2">Mileage Records</h5>`;
-    let mileageRecords = `<div class="card shadow" style="margin: auto; width: 100%; margin-top: 10px;">
-                            <div class="row">
-                                <div class="col-12">
-                                    <table class="col-12 table table-bordered table-hover mb-0">
-                                        <thead class="thead-dark" style="text-align: center;">
-                                            <tr>
-                                                <th>Service</th>
-                                                <th>Start Date</th>
-                                                <th>End Date</th>
-                                                <th>Mile</th>
-                                                <th>Action</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody id="mileage-records-table" style="text-align: center;">
+    let mileageRecords =    `<div class="card shadow" style="margin: auto; width: 100%; margin-top: 10px;">
+                                <div class="row">
+                                    <div class="col-12">
+                                        <table class="col-12 table table-bordered table-hover mb-0">
+                                            <thead class="thead-dark" style="text-align: center;">
+                                                <tr>
+                                                    <th>Service</th>
+                                                    <th>Start Date</th>
+                                                    <th>End Date</th>
+                                                    <th>Mile</th>
+                                                    <th>Action</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="mileage-records-table" style="text-align: center;">
 
-                                        </tbody>
-                                    </table>
+                                            </tbody>
+                                        </table>
+                                    </div>
                                 </div>
-                            </div>
-                        </div>`;
+                            </div>`;
     
     $(`#mileage-records`).append(header);
-    $(`#mileage-records`).append(hr);
     $(`#mileage-records`).append(mileageRecords);
     
 
@@ -256,5 +257,142 @@ function RemoveMileageRecord(mileagerRecordId) {
 }
 
 function Profile() {
+    $(`#navbar`).load(`Navbar.html`);
+    $(`#profile`).empty();
+    $(`#btn-content`).empty();
+    $(`#mileage-records`).empty();
 
+    let header = `<h5 class="text-center mt-2">Profile</h5>`;
+    let userProfile =   `<div class="card mt-0" id="user-information">
+                            <div class="card-body">
+                                <form>
+                                    <div class="form-group">
+                                        <label for="add-first-name" class="col-form-label">First Name</label>
+                                        <input type="text" class="form-control" id="add-first-name" required>
+                                        <span for="add-first-name" class="text-danger" name="addFirstName"></span>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="add-last-name" class="col-form-label">Last Name</label>
+                                        <input type="text" class="form-control" id="add-last-name" required>
+                                        <span for="add-last-name" class="text-danger" name="addLastName"></span>
+                                    </div>
+                                    <div class="form-group">
+                                        <input type="button" class="btn btn-primary" onclick="UpdateUserProfile()" value="Update Profile" />
+                                    </div>
+                                </form>
+                            </div>
+                        </div>`;
+
+    let userAddress =   `<div class="card" id="user-address">
+                            <div class="card-body">
+                                <form>
+                                    <div class="form-group">
+                                        <label for="add-address-line-one" class="col-form-label">Address Line One</label>
+                                        <input type="text" class="form-control" id="add-address-line-one" required>
+                                        <span for="add-address-line-one" class="text-danger" name="addAddressLineOne"></span>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="add-address-line-two" class="col-form-label">Address Line Two</label>
+                                        <input type="text" class="form-control" id="add-address-line-two" required>
+                                        <span for="add-address-line-two" class="text-danger" name="addAddressLineTwo"></span>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="add-city" class="col-form-label">City</label>
+                                        <input type="text" class="form-control" id="add-city" required>
+                                        <span for="add-city" class="text-danger" name="addCity"></span>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="add-state-abbreviation" class="col-form-label">State Abbreviation</label>
+                                        <input type="text" class="form-control" id="add-state" required>
+                                        <span for="add-state" class="text-danger" name="addState"></span>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="add-zip-code" class="col-form-label">Zip Code</label>
+                                        <input type="number" class="form-control" id="add-zip-code" required>
+                                        <span for="add-zip-code" class="text-danger" name="addZipCode"></span>
+                                    </div>
+                                    <div class="form-group">
+                                        <input type="button" class="btn btn-primary" onclick="UpdateAddress()" value="Update Address" />
+                                    </div>
+                                </form>
+                            </div>
+                        </div>`
+
+    let userServices = ` <div class="card" id="user-services">
+                            <div class="row">
+                                <div class="col-12">
+                                    <table class="col-12 table table-bordered table-hover">
+                                        <thead class="thead-dark">
+                                            <tr>
+                                                <th>Name</th>
+                                                <th>Action</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="services">
+                                            
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>`;
+
+    // let createServices =    `<div class="card" id="add-services">
+    //                             <div class="card-header">
+    //                                 <h5 class="text-center">Select Services</h5>
+    //                             </div>
+    //                             <div class="card-body">
+    //                                 <form>
+    //                                     <div class="form-group">
+    //                                         <select id="select-service" class="selectpicker" multiple>
+    //                                             <option>Grubhub</option>
+    //                                             <option>DoorDash</option>
+    //                                             <option>Uber</option>
+    //                                             <option>PostMates</option>
+    //                                             <option>Lyft</option>
+    //                                             <option>Amazon Restaurants</option>
+    //                                             <option>Zomato</option>
+    //                                             <option>Swiggy</option>
+    //                                             <option>Personal</option>
+    //                                         </select>
+    //                                         <span name="addServices" class="text-danger"></span>    
+    //                                     </div>              
+    //                                     <div class="form-group">
+    //                                         <input type="button" class="btn btn-primary" onclick="CreateServices()" value="Create Services" />
+    //                                     </div>
+    //                                 </form>
+    //                             </div>
+    //                         </div>`;
+
+    $(`#profile`).append(header);
+    $(`#profile`).append(userProfile);
+    $(`#profile`).append(userAddress);
+    $(`#profile`).append(userServices);
+    GetServices();
+}
+
+function GetServices() {
+    $.ajax({
+        type: "GET",
+        url: "https://localhost:5001/api/Service",
+        success: function(services) {
+            const tBody = $(`#services`);
+            tBody.empty();
+
+            $.each(services, function(index, service)
+            {
+                let tr = `<tr></tr>`;
+                let td = `<td></td>`;
+                let tdLast = `<td></td>`;
+
+                $(tBody).append(
+                    $(tr).append(
+                        $(td).text(service.name)
+                    ).append(
+                        $(tdLast)
+                            .append(`<button id="btn-remove-service-${service.serviceId}" onclick="RemoveService(${service.serviceId})" type="button" class="btn btn-danger">Remove</button>`)
+                    )
+                );
+            })
+        }
+    });
 }
