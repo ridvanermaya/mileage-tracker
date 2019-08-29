@@ -1,39 +1,57 @@
 $(`#navbar`).load(`Navbar.html`);
+GetServices();
 
-let apiKey = "#";
+let apiKey = "";
 let path = new Array();
 let intervalId;
+let startDateTime;
+let endDateTime;
+let service;
+
 
 function StartTracking() {
-    path = new Array();
-    $(`#body`).empty();
+    let date = new Date();
+    startDateTime = date.getMonth().toString() + "-" + date.getDate().toString() + "-" + date.getFullYear().toString() + " " + date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds();
+    service = $(`#select-input`).val();
+    $(`#btn-content`).empty();
     
-    let endTrackingButton = `<button class="btn btn-danger" type="button" onclick="EndTracking()">End Tracking</button>`;
+    let endTrackingButton = `<button class="btn btn-outline-danger" style="border-radius: 50%; height:100px; width: 100px; display: block; margin: auto;" type="button" onclick="EndTracking()">End Tracking</button>`;
 
-    $(`#body`).append(endTrackingButton);
+    $(`#btn-content`).append(endTrackingButton);
 
     GetLocation();
 
     intervalId = setInterval(GetLocation, 20000);
+
 }
 
 function EndTracking() {
     clearInterval(intervalId);
+    let distance = 0;
+
+    let date = new Date();
+    endDateTime = date.getMonth().toString() + "-" + date.getDate().toString() + "-" + date.getFullYear().toString() + " " + date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds();
 
     let apiPaths = new Array();
-    let startTrackingButton = `<button class="btn btn-primary" onclick="StartTracking()" type="button">Start Tracking</button>`;
-    let latLongs = [{latitude: 0, longitude: 0}];
-    let snappedPointsCount = path.length;
-    let distance = 0;
+    let startTrackingButton = `<button class="btn btn-outline-primary" style="border-radius: 50%; height:100px; width: 100px; display: block; margin: auto;" onclick="StartTracking()" type="button">Start Tracking</button>`;
+    let latLongs = new Array();
+    let startLatLong = {
+        latitude: 0,
+        longitude: 0
+    }
+
+    latLongs.push(startLatLong);
+    let snappedPointsCount = latLongs.length;
     
-    $(`#body`).empty();
-    $(`#body`).append(startTrackingButton);
+    $(`#btn-content`).empty();
+    GetServices();
+    // $(`#btn-content`).append(startTrackingButton);
 
     // needs to be uncommented after testing
     // while(snappedPointsCount > 0) {
-    //     apiPaths.push(path.slice(0,100));
-    //     path.splice(0, 100);
-    //     snappedPointsCount = path.length;
+    //     apiPaths.push(latLongs.slice(0,100));
+    //     latLongs.splice(0, 100);
+    //     snappedPointsCount = latLongs.length;
     // }
 
     // for testing purposes
@@ -41,30 +59,52 @@ function EndTracking() {
 
     apiPaths.push(path);
 
+    let snappedLatLongs = new Array();
+
     for (let index = 0; index < apiPaths.length; index++) {
         let apiPath = apiPaths[index].join("|");
         $.ajax({
             type: "GET",
+            async: false,
             url: `https://roads.googleapis.com/v1/snapToRoads?path=${apiPath}&interpolate=true&key=${apiKey}`,
             success: function(snappedPoints) {
-                for (let index = 0; index < snappedPoints.snappedPoints.length; index++) {
-                    if (snappedPoints.snappedPoints[index].location.latitude !== latLongs[latLongs.length - 1].latitude && snappedPoints.snappedPoints[index].location.longitude !== latLongs[latLongs.length - 1].longitude) {
-                        let latLong = {
-                            latitude: snappedPoints.snappedPoints[index].location.latitude,
-                            longitude: snappedPoints.snappedPoints[index].location.longitude
-                        };
-                        latLongs.push(latLong);
+                for (let index = 1; index < snappedPoints.snappedPoints.length; index++) {
+                    let latLong = {
+                        latitude: snappedPoints.snappedPoints[index].location.latitude,
+                        longitude: snappedPoints.snappedPoints[index].location.longitude
                     }
+                    snappedLatLongs.push(latLong);
                 }
-                for (let index = 1; index < latLongs.length - 1; index++) {
-                    distance += GetDistanceFromLatLonInKm(latLongs[index].latitude, latLongs[index].longitude, latLongs[index + 1].latitude, latLongs[index + 1].longitude);
+                for (let index = 1; index < snappedLatLongs.length - 1; index++) {
+                    distance += GetDistanceFromLatLonInKm(snappedLatLongs[index].latitude, snappedLatLongs[index].longitude, snappedLatLongs[index + 1].latitude, snappedLatLongs[index + 1].longitude);
                 }
-
                 distance /= 1.609;
-                console.log(distance);
+                distance = distance.toFixed(2);
             }
         })
     }
+
+    let mileageRecord = {
+        service: service,
+        mileage: distance,
+        startDateTime: startDateTime,
+        endDateTime: endDateTime
+    };
+
+    // ajax call to post mileage record
+    $.ajax({
+        type: "POST",
+        accepts: "application/json",
+        url: "https://localhost:5001/api/MileageRecord",
+        contentType: "application/json",
+        data: JSON.stringify(mileageRecord),
+        error: error => {
+            console.log(error);
+        },
+        success: result => {
+            console.log("Success");
+        }
+    })
 }
 
 function GetLocation() {
@@ -97,4 +137,124 @@ function GetDistanceFromLatLonInKm(lat1,lon1,lat2,lon2) {
   
 function DegreeToRadius(deg) {
     return deg * (Math.PI/180)
+}
+
+function GetServices() {
+    let selectService = `<div id="select-service" class="form-group" style="width: 100%; margin: auto; display: block;"></div>`;
+    let startTrackingButton = `<button class="btn btn-outline-primary" style="border-radius: 50%; height:100px; width: 100px; display: block; margin: auto;" onclick="StartTracking()" type="button">Start Tracking</button>`;
+    let selectInput = `<select id="select-input" class="form-control" style="width: auto; margin: auto; margin-bottom: 5px;"></select`;
+    $(`#btn-content`).append(selectService);
+    $(`#select-service`).append($(selectInput));
+
+    $.ajax({
+        type: "GET",
+        async: false,
+        url: "https://localhost:5001/api/Service",
+        success: function(services) {
+            $.each(services, function(index, service) {
+                let option = new Option(`${service.name}`, `${service.name}`, false, false);
+                $(option).html(`${service.name}`);
+                $(`#select-input`).append($(option));
+            })
+        }
+    })
+
+    $(`#btn-content`).append(startTrackingButton);
+}
+
+function Home() {
+    $(`#navbar`).load(`Navbar.html`);
+    $(`#btn-content`).empty();
+    $(`#select-service`).empty();
+    $(`#mileage-records`).empty();
+    GetServices();
+}
+
+function MileageRecords() {
+    $(`#navbar`).load(`Navbar.html`);
+    $(`#btn-content`).empty();
+    $(`#mileage-records`).empty();
+    let hr = `<hr/ class="mt-0">`
+    let header = `<h5 class="text-center mt-2">Mileage Records</h5>`;
+    let mileageRecords = `<div class="card shadow" style="margin: auto; width: 100%; margin-top: 10px;">
+                            <div class="row">
+                                <div class="col-12">
+                                    <table class="col-12 table table-bordered table-hover mb-0">
+                                        <thead class="thead-dark" style="text-align: center;">
+                                            <tr>
+                                                <th>Service</th>
+                                                <th>Start Date</th>
+                                                <th>End Date</th>
+                                                <th>Mile</th>
+                                                <th>Action</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="mileage-records-table" style="text-align: center;">
+
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>`;
+    
+    $(`#mileage-records`).append(header);
+    $(`#mileage-records`).append(hr);
+    $(`#mileage-records`).append(mileageRecords);
+    
+
+    $.ajax({
+        type: "GET",
+        url: "https://localhost:5001/api/MileageRecord",
+        success: function(mileageRecords) {
+            const tBody = $(`#mileage-records-table`);
+
+            tBody.empty();
+
+            $.each(mileageRecords, function(index, mileageRecord) {
+                let tr = `<tr class="align-middle"></tr>`;
+                let td = `<td class="align-middle"></td>`;
+
+                let startYear = mileageRecord.startDateTime.slice(0, 4);
+                let startMonth = mileageRecord.startDateTime.slice(5, 7);
+                let startDay = mileageRecord.startDateTime.slice(8, 10);
+                let startHour = mileageRecord.startDateTime.slice(11, 13);
+                let startMinute = mileageRecord.startDateTime.slice(14, 16);
+                let startSecond = mileageRecord.startDateTime.slice(17, 19);
+                let endYear = mileageRecord.endDateTime.slice(0, 4);
+                let endMonth = mileageRecord.endDateTime.slice(5, 7);
+                let endDay = mileageRecord.endDateTime.slice(8, 10);
+                let endHour = mileageRecord.endDateTime.slice(11, 13);
+                let endMinute = mileageRecord.endDateTime.slice(14, 16);
+                let endSecond = mileageRecord.endDateTime.slice(17, 19);
+
+                $(tBody).append(
+                    $(tr).append(
+                        $(td).text(mileageRecord.service)
+                    ).append(
+                        $(td).text(startMonth + "-" + startDay + "-" + startYear + " " + startHour + ":" + startMinute + ":" + startSecond)
+                    ).append(
+                        $(td).text(endMonth + "-" + endDay + "-" + endYear + " " + endHour + ":" + endMinute + ":" + endSecond)
+                    ).append(
+                        $(td).text(mileageRecord.mileage)
+                    ).append(
+                        $(td).append(`<button id="btn-remove-mileage-record-${mileageRecord.mileageRecordId}" onclick="RemoveMileageRecord(${mileageRecord.mileageRecordId})" type="button" class="btn btn-danger">Delete</button>`)
+                    )
+                );
+            })
+        }
+    });
+}
+
+function RemoveMileageRecord(mileagerRecordId) {
+    $.ajax({
+        url: "https://localhost:5001/api/MileageRecord" + "/" + mileagerRecordId,
+        type: "DELETE",
+        success: function() {
+            MileageRecords();
+        }
+    });
+}
+
+function Profile() {
+
 }
