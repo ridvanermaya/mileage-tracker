@@ -336,37 +336,40 @@ function Profile() {
                             </div>
                         </div>`;
 
-    // let createServices =    `<div class="card" id="add-services">
-    //                             <div class="card-header">
-    //                                 <h5 class="text-center">Select Services</h5>
-    //                             </div>
-    //                             <div class="card-body">
-    //                                 <form>
-    //                                     <div class="form-group">
-    //                                         <select id="select-service" class="selectpicker" multiple>
-    //                                             <option>Grubhub</option>
-    //                                             <option>DoorDash</option>
-    //                                             <option>Uber</option>
-    //                                             <option>PostMates</option>
-    //                                             <option>Lyft</option>
-    //                                             <option>Amazon Restaurants</option>
-    //                                             <option>Zomato</option>
-    //                                             <option>Swiggy</option>
-    //                                             <option>Personal</option>
-    //                                         </select>
-    //                                         <span name="addServices" class="text-danger"></span>    
-    //                                     </div>              
-    //                                     <div class="form-group">
-    //                                         <input type="button" class="btn btn-primary" onclick="CreateServices()" value="Create Services" />
-    //                                     </div>
-    //                                 </form>
-    //                             </div>
-    //                         </div>`;
+    let createServices =    `<div class="card">
+                                <div class="card-header">
+                                    <h5>Select Service</h5>
+                                </div>
+                                <div class="card-body">
+                                    <form>
+                                        <div class="form-group">
+                                            <select id="select-service" multiple>
+                                                <option value="GrubHub">Grubhub</option>
+                                                <option value="DoorDash">DoorDash</option>
+                                                <option value="Uber">Uber</option>
+                                                <option value="PostMates">PostMates</option>
+                                                <option value="Lyft">Lyft</option>
+                                                <option value="Amazon Restaurants">Amazon R</option>
+                                                <option value="Zomato">Zomato</option>
+                                                <option value="Swiggy">Swiggy</option>
+                                                <option value="Personal">Personal</option>
+                                            </select>
+                                            <span name="addServices" class="text-danger"></span>    
+                                        </div>              
+                                        <div class="form-group">
+                                            <input type="button" class="btn btn-primary" onclick="AddServices()" value="Add Services" />
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>`;
 
     $(`#profile`).append(header);
     $(`#profile`).append(userProfile);
     $(`#profile`).append(userAddress);
+    $(`#profile`).append(createServices);
     $(`#profile`).append(userServices);
+    $('select').selectpicker();
+    
     GetServices();
 }
 
@@ -395,4 +398,43 @@ function GetServices() {
             })
         }
     });
+}
+
+function RemoveService(serviceId) {
+    $.ajax({
+        url: "https://localhost:5001/api/Service" + "/" + serviceId,
+        type: "DELETE",
+        success: function() {
+            GetServices();
+        }
+    });
+}
+
+function AddServices() {
+    let selectedServices = $(`#select-service`).val();
+    $(`[name="addServices"]`).empty();
+    
+    if (selectedServices.length === 0) {
+        $(`[name="addServices"]`).append(`* Select at least one service!`);
+    } else {
+        for (let index = 0; index < selectedServices.length; index++) {
+            const service = {
+                Name: selectedServices[index]
+            }
+            $.ajax({
+                type: "POST",
+                accepts: "application/json",
+                url: "https://localhost:5001/api/Service",
+                contentType: "application/json",
+                data: JSON.stringify(service),
+                error: error => {
+                    console.log(error);
+                },
+                success: result => {
+                    GetServices();
+                    Profile();
+                }
+            });
+        }
+    }
 }
