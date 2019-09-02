@@ -124,8 +124,8 @@ namespace MileageTracker.WebAPI.Controllers
 
             foreach (var userProfile in userProfiles)
             {
-                const string accountSid = "ACe04c70f20e8baefbfbb43c222fc7574f";
-                const string authToken = "033dd4d40f3c5c5fc0cbc1ba62ea5301";
+                const string accountSid = "";
+                const string authToken = "";
                 
                 TwilioClient.Init(accountSid, authToken);
 
