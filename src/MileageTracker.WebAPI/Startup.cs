@@ -1,21 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Builder;
+﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.AzureADB2C.UI;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using Microsoft.EntityFrameworkCore;
 using MileageTracker.WebAPI.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI;
+using Hangfire;
 
 namespace MileageTracker.WebAPI
 {
@@ -46,6 +38,12 @@ namespace MileageTracker.WebAPI
                     builder.WithOrigins("http://127.0.0.1:5500").AllowCredentials().AllowAnyHeader().AllowAnyOrigin().AllowAnyMethod();
                 });
             });
+
+            services.AddHangfire(options =>
+                options.UseSqlServerStorage(
+                    Configuration.GetConnectionString("HangfireConnection")
+                ));
+            services.AddHangfireServer();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -65,6 +63,7 @@ namespace MileageTracker.WebAPI
             app.UseHttpsRedirection();
             app.UseAuthentication();
             app.UseMvc();
+            app.UseHangfireDashboard();
         }
     }
 }
