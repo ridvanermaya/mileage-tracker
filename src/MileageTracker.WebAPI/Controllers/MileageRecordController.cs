@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Mail;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Hangfire;
@@ -30,6 +31,23 @@ namespace MileageTracker.WebAPI.Controllers
                 () => SendDailySms(), Cron.Daily
             );
 
+            // MailMessage mail = new MailMessage();
+            //     SmtpClient SmtpServer = new SmtpClient("smtp.gmail.com");
+
+            //     mail.From = new MailAddress("mileagetrackerMT@gmail.com");
+            //     mail.To.Add("ridvanermaya@gmail.com");
+            //     mail.Subject = "Test Mail";
+            //     mail.Body = "This is for testing SMTP mail from GMAIL";
+
+            //     System.Net.Mail.Attachment attachment;
+            //     attachment = new System.Net.Mail.Attachment("your attachment file");
+            //     mail.Attachments.Add(attachment);
+
+            //     SmtpServer.Port = 587;
+            //     SmtpServer.Credentials = new System.Net.NetworkCredential("mileagetrackerMT@gmail.com", "qgkalukcenddlawk");
+            //     SmtpServer.EnableSsl = true;
+
+            //     SmtpServer.Send(mail);
         }
 
         [HttpGet]
@@ -39,6 +57,14 @@ namespace MileageTracker.WebAPI.Controllers
             userId = "ce693acd-d08d-4303-9e5d-a26b832abc38";
             var mileageRecords = await _context.MileageRecords.Where(x => x.UserId == userId).Include(x => x.User).ToListAsync();
 
+            return mileageRecords;
+        }
+
+        public List<MileageRecord> GetMileageRecordsList()
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            userId = "ce693acd-d08d-4303-9e5d-a26b832abc38";
+            var mileageRecords = _context.MileageRecords.Where(x => x.UserId == userId).Include(x => x.User).ToList();
             return mileageRecords;
         }
 
@@ -148,7 +174,7 @@ namespace MileageTracker.WebAPI.Controllers
                 }
 
                 var messageBody = ($"Hi {userProfile.FirstName}, Mileage Tracker is here! This month you drove {distance} miles and you have {monthlyMileageRecords.Count()} record(s). Thanks for using MT!");
-                var userPhoneNumber = "+13305031640";
+                var userPhoneNumber = "+1" + userProfile.PhoneNumber;
 
                 var message = MessageResource.Create(
                     body: messageBody,
@@ -156,6 +182,37 @@ namespace MileageTracker.WebAPI.Controllers
                     to: userPhoneNumber
                 );
             }
+
+            return NoContent();
+        }
+
+        [HttpGet("Report")]
+        public ActionResult Report()
+        {
+            var userEmail = User.FindFirstValue(ClaimTypes.Email);
+
+            MileageRecordReport mileageRecordReport = new MileageRecordReport();
+            byte[] abytes = mileageRecordReport.PrepareReport(GetMileageRecordsList());
+            
+            File(abytes, "applciation/pdf");
+
+            MailMessage mail = new MailMessage();
+            SmtpClient SmtpServer = new SmtpClient("smtp.gmail.com");
+
+            mail.From = new MailAddress("mileagetrackerMT@gmail.com");
+            mail.To.Add(userEmail);
+            mail.Subject = "Mileage Record Report";
+            mail.Body = "The pdf file for mileage records is attached. Thanks for using Mileage Tracker!";
+
+            System.Net.Mail.Attachment attachment;
+            attachment = new System.Net.Mail.Attachment("MileageRecord.pdf");
+            mail.Attachments.Add(attachment);
+
+            SmtpServer.Port = 587;
+            SmtpServer.Credentials = new System.Net.NetworkCredential("mileagetrackerMT@gmail.com", "qgkalukcenddlawk");
+            SmtpServer.EnableSsl = true;
+
+            SmtpServer.Send(mail);
 
             return NoContent();
         }
