@@ -1,10 +1,14 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using Hangfire;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MileageTracker.WebAPI.Models;
+using Twilio;
+using Twilio.Rest.Api.V2010.Account;
 
 namespace MileageTracker.WebAPI.Controllers
 {
@@ -17,6 +21,15 @@ namespace MileageTracker.WebAPI.Controllers
         public MileageRecordController(ApplicationDbContext context)
         {
             _context = context;
+          
+            RecurringJob.AddOrUpdate("WeeklySms",
+                () => SendWeeklySms(), Cron.Weekly
+            );
+
+            RecurringJob.AddOrUpdate("DailySms",
+                () => SendDailySms(), Cron.Daily
+            );
+
         }
 
         [HttpGet]
@@ -57,7 +70,7 @@ namespace MileageTracker.WebAPI.Controllers
 
             await _context.MileageRecords.AddAsync(newMileageRecord);
             await _context.SaveChangesAsync();
-
+            
             return NoContent();
         }
 
@@ -75,6 +88,74 @@ namespace MileageTracker.WebAPI.Controllers
 
             _context.MileageRecords.Remove(foundMileageRecord);
             await _context.SaveChangesAsync();
+
+            return NoContent();
+        }
+
+        public async Task<ActionResult> SendDailySms()
+        {
+            var userProfiles = await _context.UserProfiles.ToListAsync();
+
+            foreach (var userProfile in userProfiles)
+            {
+                const string accountSid = "ACe04c70f20e8baefbfbb43c222fc7574f";
+                const string authToken = "033dd4d40f3c5c5fc0cbc1ba62ea5301";
+                
+                TwilioClient.Init(accountSid, authToken);
+
+                var user = await _context.Users.Where(x => x.Id == userProfile.UserId).FirstOrDefaultAsync();
+                var dailyMileageRecords = await _context.MileageRecords.Where(x => x.UserId == user.Id && x.EndDateTime.ToString("MM/dd/yyyy") == DateTime.Today.ToString("MM/dd/yyyy")).ToListAsync();
+
+                var distance = 0.00;
+
+                foreach(var dailyMileageRecord in dailyMileageRecords)
+                {
+                    distance += dailyMileageRecord.Mileage;
+                }
+
+                var messageBody = ($"Hi {userProfile.FirstName}, Mileage Tracker is here! Today you drove {distance} miles and you have {dailyMileageRecords.Count()} record(s). Thanks for using MT!");
+                var userPhoneNumber = "+13305031640";
+
+                var message = MessageResource.Create(
+                    body: messageBody,
+                    from: new Twilio.Types.PhoneNumber("+18142921069"),
+                    to: userPhoneNumber
+                );
+            }
+
+            return NoContent();
+        }
+
+        public async Task<ActionResult> SendWeeklySms()
+        {
+            var userProfiles = await _context.UserProfiles.ToListAsync();
+
+            foreach (var userProfile in userProfiles)
+            {
+                const string accountSid = "ACe04c70f20e8baefbfbb43c222fc7574f";
+                const string authToken = "033dd4d40f3c5c5fc0cbc1ba62ea5301";
+                
+                TwilioClient.Init(accountSid, authToken);
+
+                var user = await _context.Users.Where(x => x.Id == userProfile.UserId).FirstOrDefaultAsync();
+                var monthlyMileageRecords = await _context.MileageRecords.Where(x => x.UserId == user.Id && x.EndDateTime.Month.ToString("MM/dd/yyyy") == DateTime.Now.Month.ToString("MM/dd/yyyy")).ToListAsync();
+
+                var distance = 0.00;
+
+                foreach(var dailyMileageRecord in monthlyMileageRecords)
+                {
+                    distance += dailyMileageRecord.Mileage;
+                }
+
+                var messageBody = ($"Hi {userProfile.FirstName}, Mileage Tracker is here! This month you drove {distance} miles and you have {monthlyMileageRecords.Count()} record(s). Thanks for using MT!");
+                var userPhoneNumber = "+13305031640";
+
+                var message = MessageResource.Create(
+                    body: messageBody,
+                    from: new Twilio.Types.PhoneNumber("+18142921069"),
+                    to: userPhoneNumber
+                );
+            }
 
             return NoContent();
         }
