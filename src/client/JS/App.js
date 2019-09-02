@@ -11,7 +11,7 @@ let service;
 
 function StartTracking() {
     let date = new Date();
-    startDateTime = date.getMonth().toString() + "-" + date.getDate().toString() + "-" + date.getFullYear().toString() + " " + date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds();
+    startDateTime = (date.getMonth() + 1).toString() + "-" + date.getDate().toString() + "-" + date.getFullYear().toString() + " " + date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds();
     service = $(`#select-input`).val();
     $(`#btn-content`).empty();
     
@@ -30,7 +30,7 @@ function EndTracking() {
     let distance = 0;
 
     let date = new Date();
-    endDateTime = date.getMonth().toString() + "-" + date.getDate().toString() + "-" + date.getFullYear().toString() + " " + date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds();
+    endDateTime = (date.getMonth() + 1).toString() + "-" + date.getDate().toString() + "-" + date.getFullYear().toString() + " " + date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds();
 
     let apiPaths = new Array();
     let startTrackingButton = `<button class="btn btn-outline-primary" style="border-radius: 50%; height:100px; width: 100px; display: block; margin: auto;" onclick="StartTracking()" type="button">Start Tracking</button>`;
@@ -45,7 +45,6 @@ function EndTracking() {
     
     $(`#btn-content`).empty();
     GetServicesHome();
-    // $(`#btn-content`).append(startTrackingButton);
 
     // needs to be uncommented after testing
     // while(snappedPointsCount > 0) {
@@ -176,6 +175,8 @@ function MileageRecords() {
     $(`#btn-content`).empty();
     $(`#mileage-records`).empty();
     $(`#profile`).empty();
+    
+    let getReportsButton = `<button type="button" class="btn btn-primary" onclick="GetReport()">Get Report</button>`;
     let hr = `<hr/ class="mt-0">`
     let header = `<h5 class="text-center mt-2">Mileage Records</h5>`;
     let mileageRecords =    `<div class="card shadow" style="margin: auto; width: 100%; margin-top: 10px;">
@@ -199,6 +200,7 @@ function MileageRecords() {
                                 </div>
                             </div>`;
     
+    $(`#mileage-records`).append(getReportsButton);
     $(`#mileage-records`).append(header);
     $(`#mileage-records`).append(mileageRecords);
     
@@ -318,7 +320,7 @@ function Profile() {
                             </div>
                         </div>`
 
-    let userServices = ` <div class="card" id="user-services">
+    let userServices = ` <div class="card text-center" id="user-services">
                             <div class="row">
                                 <div class="col-12">
                                     <table class="col-12 table table-bordered table-hover">
@@ -337,9 +339,6 @@ function Profile() {
                         </div>`;
 
     let createServices =    `<div class="card">
-                                <div class="card-header">
-                                    <h5>Select Service</h5>
-                                </div>
                                 <div class="card-body">
                                     <form>
                                         <div class="form-group">
@@ -383,9 +382,9 @@ function GetServices() {
 
             $.each(services, function(index, service)
             {
-                let tr = `<tr></tr>`;
-                let td = `<td></td>`;
-                let tdLast = `<td></td>`;
+                let tr = `<tr class="align-middle"></tr>`;
+                let td = `<td class="align-middle"></td>`;
+                let tdLast = `<td class="align-middle"></td>`;
 
                 $(tBody).append(
                     $(tr).append(
@@ -437,4 +436,15 @@ function AddServices() {
             });
         }
     }
+}
+
+function GetReport() {
+    $.ajax({
+        type: "GET",
+        url: "https://localhost:5001/api/MileageRecord/Report",
+        contentType: "application/pdf",
+        success: function() {
+            console.log("success");
+        }
+    });
 }
