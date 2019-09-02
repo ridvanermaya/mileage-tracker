@@ -10,6 +10,7 @@ namespace MileageTracker.WebAPI.Models
         public DbSet<Service> Services { get; set; }
         public DbSet<Upload> Uploads { get; set; }
         public DbSet<UserProfile> UserProfiles { get; set; }
+        public DbSet<UsefulTip> UsefulTips { get; set; }
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)
         {
