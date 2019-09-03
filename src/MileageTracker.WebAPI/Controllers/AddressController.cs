@@ -1,15 +1,15 @@
+using System;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MileageTracker.WebAPI.Models;
 
 namespace MileageTracker.WebAPI.Controllers
 {
-    [ApiController]
-    [Route("api/[controller]")]
-    public class AddressController : ControllerBase
+    public class AddressController : MTBaseController
     {
         public readonly ApplicationDbContext _context;
 
@@ -21,10 +21,8 @@ namespace MileageTracker.WebAPI.Controllers
         [HttpGet]
         public async Task<ActionResult<Address>> GetAddress()
         {
-            string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            userId = "ce693acd-d08d-4303-9e5d-a26b832abc38";
-
-            var address = await _context.Addresses.Include(x => x.User).FirstOrDefaultAsync();
+            var userId = User.FindFirstValue(ClaimTypes.Name); 
+            var address = await _context.Addresses.Include(x => x.User).FirstOrDefaultAsync(x => x.UserId == userId);
 
             if (userId == null)
             {
@@ -37,9 +35,7 @@ namespace MileageTracker.WebAPI.Controllers
         [HttpGet("{AddressId}")]
         public async Task<ActionResult<Address>> GetAddressById(int addressId)
         {
-            string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            userId = "ce693acd-d08d-4303-9e5d-a26b832abc38";
-
+            var userId = User.FindFirstValue(ClaimTypes.Name); 
             var address = await _context.Addresses.Include(x => x.User).FirstOrDefaultAsync(x => x.AddressId == addressId && x.UserId == userId);
 
             if (address == null)
@@ -58,8 +54,7 @@ namespace MileageTracker.WebAPI.Controllers
                 return BadRequest();
             }
 
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            userId = "ce693acd-d08d-4303-9e5d-a26b832abc38";
+            var userId = User.FindFirstValue(ClaimTypes.Name); 
 
             _context.Entry(address).State = EntityState.Modified;
             await _context.SaveChangesAsync();
@@ -70,8 +65,7 @@ namespace MileageTracker.WebAPI.Controllers
         [HttpPost]
         public async Task<ActionResult<Address>> AddAddress(Address address)
         {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            userId = "ce693acd-d08d-4303-9e5d-a26b832abc38";
+            var userId = User.FindFirstValue(ClaimTypes.Name);    
             var newAddress = await _context.Addresses.FirstOrDefaultAsync(x => x.UserId == userId);
 
             if (newAddress != null)
@@ -86,7 +80,7 @@ namespace MileageTracker.WebAPI.Controllers
             newAddress.City = address.City;
             newAddress.StateAbbreviation = address.StateAbbreviation.ToUpper();
             newAddress.ZipCode = address.ZipCode;
-            newAddress.UserId = userId;
+            newAddress.UserId = userId.ToString();
 
             await _context.Addresses.AddAsync(newAddress);
             await _context.SaveChangesAsync();
@@ -97,8 +91,7 @@ namespace MileageTracker.WebAPI.Controllers
         [HttpDelete("{AddressId}")]
         public async Task<ActionResult<Address>> DeleteAddress(int addressId)
         {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            userId = "ce693acd-d08d-4303-9e5d-a26b832abc38";
+            var userId = User.FindFirstValue(ClaimTypes.Name); 
             var foundAddress = await _context.Addresses.FirstOrDefaultAsync(x => x.AddressId == addressId && x.UserId == userId);
 
             if (foundAddress == null)
