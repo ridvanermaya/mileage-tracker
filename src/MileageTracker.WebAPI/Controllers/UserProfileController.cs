@@ -1,4 +1,3 @@
-using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
@@ -20,7 +19,6 @@ namespace MileageTracker.WebAPI.Controllers
         public async Task<ActionResult<UserProfile>> GetUserProfile()
         {
             var userId = User.FindFirstValue(ClaimTypes.Name); 
-
             var userProfile = await _context.UserProfiles.Include(x => x.User).FirstOrDefaultAsync(x => x.UserId == userId);
 
             if (userProfile == null)
@@ -35,7 +33,6 @@ namespace MileageTracker.WebAPI.Controllers
         public async Task<ActionResult<UserProfile>> GetUserProfileById(int userProfileId)
         {
             var userId = User.FindFirstValue(ClaimTypes.Name); 
-
             var userProfile = await _context.UserProfiles.Include(x => x.User).FirstOrDefaultAsync(x => x.UserId == userId && x.UserProfileId == userProfileId);
 
             if (userProfile == null)
@@ -67,7 +64,6 @@ namespace MileageTracker.WebAPI.Controllers
         {
             var userId = User.FindFirstValue(ClaimTypes.Name);
             var address = await _context.Addresses.FirstOrDefaultAsync(x => x.UserId == userId);
-
             var newUserProfile = await _context.UserProfiles.FirstOrDefaultAsync(x => x.UserId == userId);
 
             if (newUserProfile != null)

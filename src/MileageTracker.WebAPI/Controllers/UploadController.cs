@@ -27,7 +27,6 @@ namespace MileageTracker.WebAPI.Controllers
         public async Task<ActionResult<IEnumerable<Upload>>> GetUploads()
         {
             var userId = User.FindFirstValue(ClaimTypes.Name);
-
             var uploads = await _context.Uploads.Where(x => x.UserId == userId).Include(x => x.User).ToListAsync();
 
             return uploads;
@@ -37,7 +36,6 @@ namespace MileageTracker.WebAPI.Controllers
         public async Task<ActionResult<Upload>> GetUploadById(int uploadId)
         {
             var userId = User.FindFirstValue(ClaimTypes.Name);
-
             var upload = await _context.Uploads.Include(x => x.User).FirstOrDefaultAsync(x => x.UserId == userId && x.UploadId == uploadId);
 
             if (upload == null)
@@ -52,8 +50,8 @@ namespace MileageTracker.WebAPI.Controllers
         public async Task<ActionResult<Upload>> AddUpload(IFormFile file, [FromForm]string description, [FromForm]double price)
         {
             var userId = User.FindFirstValue(ClaimTypes.Name);
-
             var directoryInfo = new DirectoryInfo(Path.Combine(_environment.ContentRootPath, "files"));
+
             if (!directoryInfo.Exists)
             {
                 directoryInfo.Create();
@@ -101,7 +99,6 @@ namespace MileageTracker.WebAPI.Controllers
         public async Task<ActionResult<Upload>> DeleteUpload(int uploadId)
         {
             var userId = User.FindFirstValue(ClaimTypes.Name);
-
             var upload = await _context.Uploads.FirstOrDefaultAsync(x => x.UserId == userId && x.UploadId == uploadId);
 
             if (upload == null)

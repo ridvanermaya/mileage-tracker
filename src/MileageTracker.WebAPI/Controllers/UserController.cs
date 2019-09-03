@@ -35,6 +35,7 @@ namespace MileageTracker.WebAPI.Controllers
                     message = "Email already exists!"
                 });
             }
+
             var identityUser = new IdentityUser()
             {
                 UserName = user.Email,
@@ -53,7 +54,6 @@ namespace MileageTracker.WebAPI.Controllers
             }
 
             var userData = await _userManager.FindByNameAsync(user.Email);
-
             var token = GenerateToken(userData);
 
             return Ok(new
@@ -76,7 +76,6 @@ namespace MileageTracker.WebAPI.Controllers
                 return BadRequest(new { message = "Username or password is incorrect" });
 
             var user = await _userManager.FindByNameAsync(model.Email);
-
             var token = GenerateToken(user);
 
             return Ok(new
@@ -94,6 +93,7 @@ namespace MileageTracker.WebAPI.Controllers
         public async Task<IActionResult> Logout()
         {
             await _signInManager.SignOutAsync();
+
             return Ok(new
             {
                 Success = true
@@ -113,8 +113,10 @@ namespace MileageTracker.WebAPI.Controllers
                 Expires = DateTime.UtcNow.AddDays(7),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
             };
+
             var token = tokenHandler.CreateToken(tokenDescriptor);
             var tokenString = tokenHandler.WriteToken(token);
+            
             return tokenString;
         }
     }

@@ -69,7 +69,6 @@ namespace MileageTracker.WebAPI.Controllers
         public async Task<ActionResult<Service>> DeleteService(int serviceId)
         {
             var userId = User.FindFirstValue(ClaimTypes.Name); 
-
             var service = await _context.Services.FirstOrDefaultAsync(x => x.ServiceId == serviceId && x.UserId == userId);
 
             if (service == null)

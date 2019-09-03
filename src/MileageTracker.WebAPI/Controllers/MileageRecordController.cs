@@ -46,6 +46,7 @@ namespace MileageTracker.WebAPI.Controllers
         {
             var userId = User.FindFirstValue(ClaimTypes.Name); 
             var mileageRecords = _context.MileageRecords.Where(x => x.UserId == userId).Include(x => x.User).ToList();
+            
             return mileageRecords;
         }
 
