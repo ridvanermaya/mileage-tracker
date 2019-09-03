@@ -1,29 +1,32 @@
+using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MileageTracker.WebAPI.Models;
 
 namespace MileageTracker.WebAPI.Controllers
 {
-    [ApiController]
-    [Route("api/[controller]")]
-    public class UploadController : ControllerBase
+    public class UploadController : MTBaseController
     {
         public readonly ApplicationDbContext _context;
+        private readonly IHostingEnvironment _environment;
 
-        public UploadController(ApplicationDbContext context)
+        public UploadController(ApplicationDbContext context, IHostingEnvironment environment)
         {
             _context = context;
+            _environment = environment;
         }
 
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Upload>>> GetUploads()
         {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            userId = "ce693acd-d08d-4303-9e5d-a26b832abc38";
+            var userId = User.FindFirstValue(ClaimTypes.Name);
 
             var uploads = await _context.Uploads.Where(x => x.UserId == userId).Include(x => x.User).ToListAsync();
 
@@ -33,8 +36,7 @@ namespace MileageTracker.WebAPI.Controllers
         [HttpGet("{UploadId}")]
         public async Task<ActionResult<Upload>> GetUploadById(int uploadId)
         {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            userId = "ce693acd-d08d-4303-9e5d-a26b832abc38";
+            var userId = User.FindFirstValue(ClaimTypes.Name);
 
             var upload = await _context.Uploads.Include(x => x.User).FirstOrDefaultAsync(x => x.UserId == userId && x.UploadId == uploadId);
 
@@ -47,17 +49,29 @@ namespace MileageTracker.WebAPI.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<Upload>> AddUpload(Upload upload)
+        public async Task<ActionResult<Upload>> AddUpload(IFormFile file, [FromForm]string description, [FromForm]double price)
         {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            userId = "ce693acd-d08d-4303-9e5d-a26b832abc38";
+            var userId = User.FindFirstValue(ClaimTypes.Name);
+
+            var directoryInfo = new DirectoryInfo(Path.Combine(_environment.ContentRootPath, "files"));
+            if (!directoryInfo.Exists)
+            {
+                directoryInfo.Create();
+            }
+
+            var fileName = $"{Guid.NewGuid()}-{file.FileName}";
+
+            using (var fileStream = new FileStream(Path.Combine(directoryInfo.FullName, fileName), FileMode.Create))
+            {
+                await file.CopyToAsync(fileStream);
+            }
 
             var newUpload = new Upload();
 
-            newUpload.ImageUrl = upload.ImageUrl;
-            newUpload.UploadDate = upload.UploadDate;
-            newUpload.UploadDescription = upload.UploadDescription;
-            newUpload.Price = upload.Price;
+            newUpload.ImageUrl = fileName;
+            newUpload.UploadDate = DateTime.Now;
+            newUpload.UploadDescription = description;
+            newUpload.Price = price;
             newUpload.UserId = userId;
 
             await _context.Uploads.AddAsync(newUpload);
@@ -74,10 +88,9 @@ namespace MileageTracker.WebAPI.Controllers
                 return BadRequest();
             }
 
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            userId = "ce693acd-d08d-4303-9e5d-a26b832abc38";
+            var userId = User.FindFirstValue(ClaimTypes.Name);
             upload.UserId = userId;
-            
+
             _context.Entry(upload).State = EntityState.Modified;
             await _context.SaveChangesAsync();
 
@@ -87,8 +100,7 @@ namespace MileageTracker.WebAPI.Controllers
         [HttpDelete("{UploadId}")]
         public async Task<ActionResult<Upload>> DeleteUpload(int uploadId)
         {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            userId = "ce693acd-d08d-4303-9e5d-a26b832abc38";
+            var userId = User.FindFirstValue(ClaimTypes.Name);
 
             var upload = await _context.Uploads.FirstOrDefaultAsync(x => x.UserId == userId && x.UploadId == uploadId);
 
