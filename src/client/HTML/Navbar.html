@@ -5,21 +5,38 @@
     </button>
     <div class="collapse navbar-collapse" id="navbarNavDropdown">
         <ul class="navbar-nav">
-            <li class="nav-item active">
+            <li data-group="signedin" class="nav-item active">
                 <a class="nav-link" onclick="Home()">Home <span class="sr-only">(current)</span></a>
             </li>
-            <li class="nav-item">
+            <li data-group="signedin" class="nav-item">
                 <a class="nav-link" onclick="Profile()">Profile</a>
             </li>
-            <li class="nav-item">
+            <li data-group="signedin" class="nav-item">
                 <a class="nav-link" onclick="MileageRecords()">Mileage Records</a>
             </li>
-            <li class="nav-item">
-                <a class="nav-link" href="#">Uploads</a>
+            <li data-group="signedin" class="nav-item">
+                <a class="nav-link" onclick="Upload()">Uploads</a>
             </li>
-            <li class="nav-item">
-                <a class="nav-link" href="#">Log Out</a>
+            <li data-group="signedin" class="nav-item">
+                <a class="nav-link" onclick="Logout()">Log Out</a>
+            </li>
+            <li data-group="anonymous" class="nav-item">
+                <a class="nav-link" onclick="Login()">Log In</a>
+            </li>
+            <li data-group="anonymous" class="nav-item">
+                <a class="nav-link" onclick="Register()">Register</a>
             </li>
         </ul>
     </div>
 </nav>
+<script>
+    if(currentUser!=null){
+        $("[data-group='signedin']").show();
+        $("[data-group='anonymous']").hide();
+    }
+    else{
+        $("[data-group='signedin']").hide();
+        $("[data-group='anonymous']").show();
+
+    }
+</script>
