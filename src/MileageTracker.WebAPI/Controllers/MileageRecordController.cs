@@ -5,6 +5,7 @@ using System.Net.Mail;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Hangfire;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MileageTracker.WebAPI.Models;
@@ -13,15 +14,15 @@ using Twilio.Rest.Api.V2010.Account;
 
 namespace MileageTracker.WebAPI.Controllers
 {
-    [ApiController]
-    [Route("api/[controller]")]
-    public class MileageRecordController : ControllerBase
+    public class MileageRecordController : MTBaseController
     {
         private readonly ApplicationDbContext _context;
+        private readonly UserManager<IdentityUser> _userManager;
 
-        public MileageRecordController(ApplicationDbContext context)
+        public MileageRecordController(ApplicationDbContext context, UserManager<IdentityUser> userManager)
         {
             _context = context;
+            _userManager = userManager;
           
             RecurringJob.AddOrUpdate("WeeklySms",
                 () => SendWeeklySms(), Cron.Weekly
@@ -30,31 +31,12 @@ namespace MileageTracker.WebAPI.Controllers
             RecurringJob.AddOrUpdate("DailySms",
                 () => SendDailySms(), Cron.Daily
             );
-
-            // MailMessage mail = new MailMessage();
-            //     SmtpClient SmtpServer = new SmtpClient("smtp.gmail.com");
-
-            //     mail.From = new MailAddress("mileagetrackerMT@gmail.com");
-            //     mail.To.Add("ridvanermaya@gmail.com");
-            //     mail.Subject = "Test Mail";
-            //     mail.Body = "This is for testing SMTP mail from GMAIL";
-
-            //     System.Net.Mail.Attachment attachment;
-            //     attachment = new System.Net.Mail.Attachment("your attachment file");
-            //     mail.Attachments.Add(attachment);
-
-            //     SmtpServer.Port = 587;
-            //     SmtpServer.Credentials = new System.Net.NetworkCredential("mileagetrackerMT@gmail.com", "qgkalukcenddlawk");
-            //     SmtpServer.EnableSsl = true;
-
-            //     SmtpServer.Send(mail);
         }
 
         [HttpGet]
         public async Task<ActionResult<IEnumerable<MileageRecord>>> GetMileageRecords()
         {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            userId = "ce693acd-d08d-4303-9e5d-a26b832abc38";
+            var userId = User.FindFirstValue(ClaimTypes.Name); 
             var mileageRecords = await _context.MileageRecords.Where(x => x.UserId == userId).Include(x => x.User).ToListAsync();
 
             return mileageRecords;
@@ -62,8 +44,7 @@ namespace MileageTracker.WebAPI.Controllers
 
         public List<MileageRecord> GetMileageRecordsList()
         {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            userId = "ce693acd-d08d-4303-9e5d-a26b832abc38";
+            var userId = User.FindFirstValue(ClaimTypes.Name); 
             var mileageRecords = _context.MileageRecords.Where(x => x.UserId == userId).Include(x => x.User).ToList();
             return mileageRecords;
         }
@@ -83,8 +64,7 @@ namespace MileageTracker.WebAPI.Controllers
         [HttpPost]
         public async Task<ActionResult<MileageRecord>> AddMileageRecord(MileageRecord mileageRecord)
         {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            userId = "ce693acd-d08d-4303-9e5d-a26b832abc38";
+            var userId = User.FindFirstValue(ClaimTypes.Name);
 
             MileageRecord newMileageRecord = new MileageRecord();
             
@@ -103,8 +83,7 @@ namespace MileageTracker.WebAPI.Controllers
         [HttpDelete("{MileageRecordId}")]
         public async Task<ActionResult> DeleteMileageRecord(int mileageRecordId)
         {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            userId = "ce693acd-d08d-4303-9e5d-a26b832abc38";
+            var userId = User.FindFirstValue(ClaimTypes.Name);
             var foundMileageRecord = await _context.MileageRecords.FirstOrDefaultAsync(x => x.MileageRecordId == mileageRecordId && x.UserId == userId);
 
             if (foundMileageRecord == null)
@@ -140,7 +119,7 @@ namespace MileageTracker.WebAPI.Controllers
                 }
 
                 var messageBody = ($"Hi {userProfile.FirstName}, Mileage Tracker is here! Today you drove {distance} miles and you have {dailyMileageRecords.Count()} record(s). Thanks for using MT!");
-                var userPhoneNumber = "+13305031640";
+                var userPhoneNumber = "+1" + userProfile.PhoneNumber;
 
                 var message = MessageResource.Create(
                     body: messageBody,
@@ -187,9 +166,11 @@ namespace MileageTracker.WebAPI.Controllers
         }
 
         [HttpGet("Report")]
-        public ActionResult Report()
+        public async Task<ActionResult> Report()
         {
-            var userEmail = User.FindFirstValue(ClaimTypes.Email);
+            var userId = User.FindFirstValue(ClaimTypes.Name);
+
+            var user = await _userManager.FindByIdAsync(userId);
 
             MileageRecordReport mileageRecordReport = new MileageRecordReport();
             byte[] abytes = mileageRecordReport.PrepareReport(GetMileageRecordsList());
@@ -200,7 +181,7 @@ namespace MileageTracker.WebAPI.Controllers
             SmtpClient SmtpServer = new SmtpClient("smtp.gmail.com");
 
             mail.From = new MailAddress("mileagetrackerMT@gmail.com");
-            mail.To.Add(userEmail);
+            mail.To.Add(user.Email);
             mail.Subject = "Mileage Record Report";
             mail.Body = "The pdf file for mileage records is attached. Thanks for using Mileage Tracker!";
 
