@@ -21,7 +21,6 @@ function CreateUser()
     if (!(ComparePasswords(inputPassword.val(), inputConfirmPassword.val()))) {
         confirmPasswordSpan.append("Passwords don't match");
     }
-    
 
     const user =
     {

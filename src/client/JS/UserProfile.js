@@ -6,7 +6,8 @@ function CreateUserProfile(e) {
 
   const userProfile = {
     FirstName: $(`#add-first-name`).val(),
-    LastName: $(`#add-last-name`).val()
+    LastName: $(`#add-last-name`).val(),
+    PhoneNumber: $(`#add-phone-number`).val()
   };
 
   if (userProfile.FirstName === "") {
