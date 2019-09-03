@@ -1,3 +1,4 @@
+using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
@@ -6,9 +7,7 @@ using MileageTracker.WebAPI.Models;
 
 namespace MileageTracker.WebAPI.Controllers
 {
-    [ApiController]
-    [Route("api/[controller]")]
-    public class UserProfileController : ControllerBase
+    public class UserProfileController : MTBaseController
     {
         public readonly ApplicationDbContext _context;
 
@@ -20,8 +19,7 @@ namespace MileageTracker.WebAPI.Controllers
         [HttpGet]
         public async Task<ActionResult<UserProfile>> GetUserProfile()
         {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            userId = "ce693acd-d08d-4303-9e5d-a26b832abc38";
+            var userId = User.FindFirstValue(ClaimTypes.Name); 
 
             var userProfile = await _context.UserProfiles.Include(x => x.User).FirstOrDefaultAsync(x => x.UserId == userId);
 
@@ -36,8 +34,7 @@ namespace MileageTracker.WebAPI.Controllers
         [HttpGet("{UserProfileId}")]
         public async Task<ActionResult<UserProfile>> GetUserProfileById(int userProfileId)
         {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            userId = "ce693acd-d08d-4303-9e5d-a26b832abc38";
+            var userId = User.FindFirstValue(ClaimTypes.Name); 
 
             var userProfile = await _context.UserProfiles.Include(x => x.User).FirstOrDefaultAsync(x => x.UserId == userId && x.UserProfileId == userProfileId);
 
@@ -57,8 +54,7 @@ namespace MileageTracker.WebAPI.Controllers
                 return BadRequest();
             }
 
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            userId = "ce693acd-d08d-4303-9e5d-a26b832abc38";
+            var userId = User.FindFirstValue(ClaimTypes.Name); 
 
             _context.Entry(userProfile).State = EntityState.Modified;
             await _context.SaveChangesAsync();
@@ -69,8 +65,7 @@ namespace MileageTracker.WebAPI.Controllers
         [HttpPost]
         public async Task<ActionResult<UserProfile>> AddUserProfile(UserProfile userProfile)
         {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            userId = "ce693acd-d08d-4303-9e5d-a26b832abc38";
+            var userId = User.FindFirstValue(ClaimTypes.Name);
             var address = await _context.Addresses.FirstOrDefaultAsync(x => x.UserId == userId);
 
             var newUserProfile = await _context.UserProfiles.FirstOrDefaultAsync(x => x.UserId == userId);
@@ -84,6 +79,7 @@ namespace MileageTracker.WebAPI.Controllers
 
             newUserProfile.FirstName = userProfile.FirstName;
             newUserProfile.LastName = userProfile.LastName;
+            newUserProfile.PhoneNumber = userProfile.PhoneNumber;
             newUserProfile.AddressId = address.AddressId;
             newUserProfile.UserId = userId;
 
