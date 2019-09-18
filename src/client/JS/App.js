@@ -1111,6 +1111,7 @@ function Upload() {
   </div>`
 
   $(`#upload`).append(form);
+  GetUploads();
 }
 
 function Uploads() {
@@ -1132,5 +1133,75 @@ function Uploads() {
           error: function(data) {
             Home();
           }
+  });
+
+  GetUploads();
+}
+
+function GetUploads() {
+  let header = `<h5 class="text-center mt-2">Uploads</h5>`;
+  let uploads = `<div class="card shadow" style="margin: auto; width: 100%; margin-top: 10px;">
+                                <div class="row">
+                                    <div class="col-12">
+                                        <table class="col-12 table table-bordered table-hover mb-0">
+                                            <thead class="thead-dark" style="text-align: center;">
+                                                <tr>
+                                                    <th>Description</th>
+                                                    <th>Price</th>
+                                                    <th>Upload Date</th>
+                                                    <th>Action</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="uploads-table" style="text-align: center;">
+
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>`;
+
+                            $(`#upload`).append(uploads);
+  $.ajax({
+    type: "GET",
+    url: "https://localhost:5001/api/Upload",
+    headers: { Authorization: "Bearer " + currentUser.token },
+    contentType: "application/json",
+    success: function(uploads) {
+      const tBody = $(`#uploads-table`);
+      console.log(uploads);
+      tBody.empty();
+      $.each(uploads, function(index, upload) {
+        let tr = `<tr class="align-middle"></tr>`;
+        let td = `<td class="align-middle"></td>`;
+        let uploadYear = upload.uploadDate.slice(0, 4);
+        let uploadMonth = upload.uploadDate.slice(5, 7);
+        let uploadDay = upload.uploadDate.slice(8, 10);
+        let uploadHour = upload.uploadDate.slice(11, 13);
+        let uploadMinute = upload.uploadDate.slice(14, 16);
+        let uploadSecond = upload.uploadDate.slice(17, 19);
+
+        $(tBody).append(
+          $(tr)
+            .append($(td).text(upload.uploadDescription))
+            .append($(td).text(upload.price))
+            .append($(td).text(uploadMonth +
+              "-" +
+              uploadDay +
+              "-" +
+              uploadYear +
+              " " +
+              uploadHour +
+              ":" +
+              uploadMinute +
+              ":" +
+              uploadSecond))
+            .append(
+              $(td).append(
+                `<button id="btn-remove-upload-${upload.uploadId}" onclick="RemoveUpload(${upload.uploadId})" type="button" class="btn btn-danger">Delete</button>`
+              )
+            )
+        )
+      });
+    }
   });
 }
