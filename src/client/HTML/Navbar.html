@@ -1,29 +1,29 @@
 <nav class="navbar navbar-expand-lg navbar-light bg-light">
-    <a class="navbar-brand" onclick="Home()">MT</a>
+    <a class="navbar-brand" onclick="Home()" style="cursor: pointer;">MT</a>
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle Navigation">
         <span class="navbar-toggler-icon"></span>
     </button>
     <div class="collapse navbar-collapse" id="navbarNavDropdown">
         <ul class="navbar-nav">
-            <li data-group="signedin" class="nav-item active">
+            <li data-group="signedin" class="nav-item active" style="cursor: pointer;">
                 <a class="nav-link" onclick="Home()">Home <span class="sr-only">(current)</span></a>
             </li>
-            <li data-group="signedin" class="nav-item">
-                <a class="nav-link" onclick="Profile()">Profile</a>
-            </li>
-            <li data-group="signedin" class="nav-item">
+            <li data-group="signedin" class="nav-item" style="cursor: pointer;">
                 <a class="nav-link" onclick="MileageRecords()">Mileage Records</a>
             </li>
-            <li data-group="signedin" class="nav-item">
-                <a class="nav-link" onclick="Upload()">Uploads</a>
+            <li data-group="signedin" class="nav-item" style="cursor: pointer;">
+                <a class="nav-link" onclick="Uploads()">Uploads</a>
             </li>
-            <li data-group="signedin" class="nav-item">
+            <li data-group="signedin" class="nav-item" style="cursor: pointer;">
+                <a class="nav-link" onclick="Profile()">Profile</a>
+            </li>
+            <li data-group="signedin" class="nav-item" style="cursor: pointer;">
                 <a class="nav-link" onclick="Logout()">Log Out</a>
             </li>
-            <li data-group="anonymous" class="nav-item">
+            <li data-group="anonymous" class="nav-item" style="cursor: pointer;">
                 <a class="nav-link" onclick="Login()">Log In</a>
             </li>
-            <li data-group="anonymous" class="nav-item">
+            <li data-group="anonymous" class="nav-item" style="cursor: pointer;">
                 <a class="nav-link" onclick="Register()">Register</a>
             </li>
         </ul>
