@@ -311,7 +311,6 @@ function Home() {
   $(`#mileage-records`).empty();
   $(`#profile`).empty();
   $(`#upload`).empty();
-  GetUsefulTips();
   GetServicesHome();
   GetUsefulTips();
 }
@@ -1217,17 +1216,17 @@ function GetUsefulTips() {
     headers: { Authorization: "Bearer " + currentUser.token },
     contentType: "application/json",
     success: function(usefulTips) {
-      $.each(usefulTips, function(index, usefulTip) {
+      for (let index = 0; index < 3; index++) {
         let card = `<div class="card text-center mb-4">
               <div class="card-header">
-                ${usefulTip.title}
+                ${usefulTips[index].title}
               </div>
               <div class="card-body">
-                <p class="card-text">${usefulTip.text}</p>
+                <p class="card-text">${usefulTips[index].text}</p>
               </div>
             </div>`;
         $(`#recommendations`).append($(card));
-      });
+      }
     }
   });
 }
