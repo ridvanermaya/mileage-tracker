@@ -311,7 +311,9 @@ function Home() {
   $(`#mileage-records`).empty();
   $(`#profile`).empty();
   $(`#upload`).empty();
+  GetUsefulTips();
   GetServicesHome();
+  GetUsefulTips();
 }
 
 function MileageRecords() {
@@ -555,7 +557,7 @@ function Profile() {
     error: error => {
       console.log(error);
     },
-    success: (result) => {
+    success: result => {
       console.log(result);
       $(`#add-first-name`).val(result.firstName);
       $(`#add-last-name`).val(result.lastName);
@@ -571,7 +573,7 @@ function Profile() {
     error: error => {
       console.log(error);
     },
-    success: (result) => {
+    success: result => {
       console.log(result);
       $(`#add-address-line-one`).val(result.addressLineOne);
       $(`#add-address-line-two`).val(result.addressLineTwo);
@@ -668,7 +670,7 @@ function GetReport() {
 }
 
 function Login() {
-  let loginDiv =    `<div class="card">
+  let loginDiv = `<div class="card">
                         <div class="card-body">
                             <form>
                             <div class="form-group">
@@ -688,9 +690,9 @@ function Login() {
                         </div>
                     </div>`;
 
-    $(`#navbar`).load(`Navbar.html`);
-    $(`#login`).empty();
-    $("#login").html(loginDiv);
+  $(`#navbar`).load(`Navbar.html`);
+  $(`#login`).empty();
+  $("#login").html(loginDiv);
 
   var uri = "https://localhost:5001/api/user/login";
   $("#btnLogin").on("click", function() {
@@ -734,14 +736,14 @@ function Logout() {
 }
 
 function Register() {
-    $(`#navbar`).load(`Navbar.html`);
-    $(`#profile`).empty();
-    $(`#btn-content`).empty();
-    $(`#mileage-records`).empty();
-    $(`#login`).empty();
-    $(`#upload`).empty();
+  $(`#navbar`).load(`Navbar.html`);
+  $(`#profile`).empty();
+  $(`#btn-content`).empty();
+  $(`#mileage-records`).empty();
+  $(`#login`).empty();
+  $(`#upload`).empty();
 
-    let registerDiv =   `<div class="card">
+  let registerDiv = `<div class="card">
                             <div class="card-body">
                                 <form>
                                     <div class="form-group">
@@ -765,88 +767,84 @@ function Register() {
                                 <a onclick="Login()">Already have an acount? Log in here!</a>
                             </div>
                         </div>`;
-    
-    $(`#login`).append(registerDiv);
+
+  $(`#login`).append(registerDiv);
 }
 
-function CreateUser()
-{
-    let addEmailSpan = $(`[name="addEmail"]`);
-    let addPassowrdSpan = $(`[name="addPassword"]`);
-    let confirmPasswordSpan = $(`[name="confirmPassword"]`);
-    let inputEmail = $(`#add-email`).val();
-    let inputPassword = $(`#add-password`).val();
-    let inputConfirmPassword = $(`#confirm-password`).val();
+function CreateUser() {
+  let addEmailSpan = $(`[name="addEmail"]`);
+  let addPassowrdSpan = $(`[name="addPassword"]`);
+  let confirmPasswordSpan = $(`[name="confirmPassword"]`);
+  let inputEmail = $(`#add-email`).val();
+  let inputPassword = $(`#add-password`).val();
+  let inputConfirmPassword = $(`#confirm-password`).val();
 
-    addEmailSpan.empty();
-    addPassowrdSpan.empty();
-    confirmPasswordSpan.empty();
+  addEmailSpan.empty();
+  addPassowrdSpan.empty();
+  confirmPasswordSpan.empty();
 
-    if (inputEmail === "") {
-      alert("Please enter an email address!");
+  if (inputEmail === "") {
+    alert("Please enter an email address!");
+  }
+
+  if (inputEmail !== "") {
+    if (!ValidateEmail(inputEmail)) {
+      alert("Please enter a valid email address!");
+      Register();
     }
-    
-    if (inputEmail !== "") {
-        if(!(ValidateEmail(inputEmail))) {
-            alert("Please enter a valid email address!");
-            Register();
-        }
-    }
+  }
 
-    if (!(ComparePasswords(inputPassword, inputConfirmPassword))) {
-        alert("Passwords don't match!");
-        Register();
-    } else {
-      const user =
-    {
-        Email: inputEmail,
-        Password: inputPassword
+  if (!ComparePasswords(inputPassword, inputConfirmPassword)) {
+    alert("Passwords don't match!");
+    Register();
+  } else {
+    const user = {
+      Email: inputEmail,
+      Password: inputPassword
     };
 
     $.ajax({
-        type: "POST",
-        accepts: "application/json",
-        url: "https://localhost:5001/api/user/register",
-        contentType: "application/json",
-        data: JSON.stringify(user),
-        error: function(error) {
-            console.log(error);
-        },
-        success: function(result) {
-            currentUser = result;
-            Address();
-        }
+      type: "POST",
+      accepts: "application/json",
+      url: "https://localhost:5001/api/user/register",
+      contentType: "application/json",
+      data: JSON.stringify(user),
+      error: function(error) {
+        console.log(error);
+      },
+      success: function(result) {
+        currentUser = result;
+        Address();
+      }
     });
-    }
+  }
 }
 
 function ComparePasswords(passwordOne, passwordTwo) {
-    if (passwordOne === passwordTwo) {
-        return true;
-    } else {
-        return false;
-    }
+  if (passwordOne === passwordTwo) {
+    return true;
+  } else {
+    return false;
+  }
 }
 
-function ValidateEmail(email) 
-{
- if (/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(email))
-  {
+function ValidateEmail(email) {
+  if (/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(email)) {
     return true;
   }
-    return false;
+  return false;
 }
 
 function Address() {
-    // $(`#navbar`).load(`Navbar.html`);
-    $(`#navbar`).empty();
-    $(`#profile`).empty();
-    $(`#btn-content`).empty();
-    $(`#mileage-records`).empty();
-    $(`#login`).empty();
-    $(`#upload`).empty();
+  // $(`#navbar`).load(`Navbar.html`);
+  $(`#navbar`).empty();
+  $(`#profile`).empty();
+  $(`#btn-content`).empty();
+  $(`#mileage-records`).empty();
+  $(`#login`).empty();
+  $(`#upload`).empty();
 
-    let addressDiv =  `<div class="card">
+  let addressDiv = `<div class="card">
                         <div class="card-header">
                             <h5 class="text-center">Create Your Address</h5>
                         </div>
@@ -882,7 +880,7 @@ function Address() {
                                 </div>
                             </form>
                         </div>
-                    </div>;`
+                    </div>;`;
 
   $(`#login`).append(addressDiv);
 }
@@ -894,40 +892,40 @@ function CreateAddress() {
   $(`[name="addZipCode"]`).empty();
 
   const address = {
-      AddressLineOne: $(`#add-address-line-one`).val(),
-      AddressLineTwo: $(`#add-address-line-two`).val(),
-      City: $(`#add-city`).val(),
-      StateAbbreviation: $(`#add-state`).val(),
-      ZipCode: $(`#add-zip-code`).val()
+    AddressLineOne: $(`#add-address-line-one`).val(),
+    AddressLineTwo: $(`#add-address-line-two`).val(),
+    City: $(`#add-city`).val(),
+    StateAbbreviation: $(`#add-state`).val(),
+    ZipCode: $(`#add-zip-code`).val()
   };
 
   if (address.AddressLineOne === "") {
-      alert("Address Line One is required!");
-      Address();
+    alert("Address Line One is required!");
+    Address();
   } else if (address.City === "") {
-      alert("City is required!");
-      Address();
+    alert("City is required!");
+    Address();
   } else if (address.StateAbbreviation === "") {
-      alert("State Abbreviation is required!");
-      Address();
+    alert("State Abbreviation is required!");
+    Address();
   } else if (address.ZipCode === "") {
-      alert("Zip code is required!");
-      Address();
+    alert("Zip code is required!");
+    Address();
   } else {
-      $.ajax({
-          type: "POST",
-          accepts: "application/json",
-          url: "https://localhost:5001/api/address",
-          headers: { Authorization: "Bearer " + currentUser.token },
-          contentType: "application/json",
-          data: JSON.stringify(address),
-          error: error => {
-              console.log(error);
-          },
-          success: result => {
-              UserProfile();
-          }
-      });
+    $.ajax({
+      type: "POST",
+      accepts: "application/json",
+      url: "https://localhost:5001/api/address",
+      headers: { Authorization: "Bearer " + currentUser.token },
+      contentType: "application/json",
+      data: JSON.stringify(address),
+      error: error => {
+        console.log(error);
+      },
+      success: result => {
+        UserProfile();
+      }
+    });
   }
 }
 
@@ -939,7 +937,7 @@ function UserProfile() {
   $(`#login`).empty();
   $(`#upload`).empty();
 
-  let userProfileDiv =  `<div class="card">
+  let userProfileDiv = `<div class="card">
                           <div class="card-header">
                               <h5 class="text-center">Create Your Profile</h5>
                           </div>
@@ -1042,29 +1040,29 @@ function Services() {
 function CreateServices() {
   let selectedServices = $(`#select-service`).val();
   $(`[name="addServices"]`).empty();
-  
+
   if (selectedServices.length === 0) {
-      $(`[name="addServices"]`).append(`* Select at least one service!`);
+    $(`[name="addServices"]`).append(`* Select at least one service!`);
   } else {
-      for (let index = 0; index < selectedServices.length; index++) {
-          const service = {
-              Name: selectedServices[index]
-          }
-          $.ajax({
-              type: "POST",
-              accepts: "application/json",
-              url: "https://localhost:5001/api/service",
-              headers: { Authorization: "Bearer " + currentUser.token },
-              contentType: "application/json",
-              data: JSON.stringify(service),
-              error: error => {
-                  console.log(error);
-              },
-              success: result => {
-                  Home();
-              }
-          });
-      }
+    for (let index = 0; index < selectedServices.length; index++) {
+      const service = {
+        Name: selectedServices[index]
+      };
+      $.ajax({
+        type: "POST",
+        accepts: "application/json",
+        url: "https://localhost:5001/api/service",
+        headers: { Authorization: "Bearer " + currentUser.token },
+        contentType: "application/json",
+        data: JSON.stringify(service),
+        error: error => {
+          console.log(error);
+        },
+        success: result => {
+          Home();
+        }
+      });
+    }
   }
 }
 
@@ -1108,7 +1106,7 @@ function Upload() {
       </button>
     </form>
     </div>
-  </div>`
+  </div>`;
 
   $(`#upload`).append(form);
   GetUploads();
@@ -1116,23 +1114,23 @@ function Upload() {
 
 function Uploads() {
   event.preventDefault();
-        var formData = new FormData();
-        formData.append("file", document.getElementById("file").files[0]);
-        formData.append("description", $("#description").val());
-        formData.append("price", $("#price").val());
-        $.ajax({
-          headers: { Authorization: "Bearer " + currentUser.token },
-          url: "https://localhost:5001/api/upload",
-          type: "POST",
-          data: formData,
-          contentType: false,
-          processData: false,
-          success: function(data) {
-            console.log(data);
-          },
-          error: function(data) {
-            Home();
-          }
+  var formData = new FormData();
+  formData.append("file", document.getElementById("file").files[0]);
+  formData.append("description", $("#description").val());
+  formData.append("price", $("#price").val());
+  $.ajax({
+    headers: { Authorization: "Bearer " + currentUser.token },
+    url: "https://localhost:5001/api/upload",
+    type: "POST",
+    data: formData,
+    contentType: false,
+    processData: false,
+    success: function(data) {
+      console.log(data);
+    },
+    error: function(data) {
+      Home();
+    }
   });
 
   GetUploads();
@@ -1160,7 +1158,7 @@ function GetUploads() {
                                 </div>
                             </div>`;
 
-                            $(`#upload`).append(uploads);
+  $(`#upload`).append(uploads);
   $.ajax({
     type: "GET",
     url: "https://localhost:5001/api/Upload",
@@ -1184,23 +1182,51 @@ function GetUploads() {
           $(tr)
             .append($(td).text(upload.uploadDescription))
             .append($(td).text(upload.price))
-            .append($(td).text(uploadMonth +
-              "-" +
-              uploadDay +
-              "-" +
-              uploadYear +
-              " " +
-              uploadHour +
-              ":" +
-              uploadMinute +
-              ":" +
-              uploadSecond))
+            .append(
+              $(td).text(
+                uploadMonth +
+                  "-" +
+                  uploadDay +
+                  "-" +
+                  uploadYear +
+                  " " +
+                  uploadHour +
+                  ":" +
+                  uploadMinute +
+                  ":" +
+                  uploadSecond
+              )
+            )
             .append(
               $(td).append(
                 `<button id="btn-remove-upload-${upload.uploadId}" onclick="RemoveUpload(${upload.uploadId})" type="button" class="btn btn-danger">Delete</button>`
               )
             )
-        )
+        );
+      });
+    }
+  });
+}
+
+// Displaying Random UsefulTips
+function GetUsefulTips() {
+  let h2el = "<h2></h2>";
+  $.ajax({
+    type: "GET",
+    url: "https://localhost:5001/api/UsefulTip",
+    headers: { Authorization: "Bearer " + currentUser.token },
+    contentType: "application/json",
+    success: function(usefulTips) {
+      $.each(usefulTips, function(index, usefulTip) {
+        let card = `<div class="card text-center mb-4">
+              <div class="card-header">
+                ${usefulTip.title}
+              </div>
+              <div class="card-body">
+                <p class="card-text">${usefulTip.text}</p>
+              </div>
+            </div>`;
+        $(`#recommendations`).append($(card));
       });
     }
   });
