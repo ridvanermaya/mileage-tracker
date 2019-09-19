@@ -314,7 +314,8 @@ function Home() {
   $(`#select-service`).empty();
   $(`#mileage-records`).empty();
   $(`#profile`).empty();
-  $(`#upload`).empty();
+  $(`#uploads`).empty();
+  $(`#recommendations`).empty();
   GetServicesHome();
   GetUsefulTips();
 }
@@ -325,8 +326,10 @@ function MileageRecords() {
   $(`#btn-content`).empty();
   $(`#mileage-records`).empty();
   $(`#profile`).empty();
+  $(`#uploads`).empty();
+  $(`#recommendations`).empty();
 
-  let getReportsButton = `<button type="button" class="btn btn-primary" onclick="GetReport()">Get Report</button>`;
+  let getReportsButton = `<button type="button" class="btn btn-primary" onclick="GetReport(event)">Get Report</button>`;
   let hr = `<hr/ class="mt-0">`;
   let header = `<h5 class="text-center mt-2">Mileage Records</h5>`;
   let mileageRecords = `<div class="card shadow" style="margin: auto; width: 100%; margin-top: 10px;">
@@ -443,7 +446,8 @@ function Profile() {
   $(`#profile`).empty();
   $(`#btn-content`).empty();
   $(`#mileage-records`).empty();
-  $(`#upload`).empty();
+  $(`#uploads`).empty();
+  $(`#recommendations`).empty();
 
   let header = `<h5 class="text-center mt-2">Profile</h5>`;
   let userProfile = `<div class="card mt-0" id="user-information">
@@ -665,7 +669,7 @@ function AddServices() {
 }
 
 // This function calls the report method in the controller to send a PDF file to user's email
-function GetReport() {
+function GetReport(event) {
   event.preventDefault();
   $.ajax({
     type: "GET",
@@ -673,7 +677,6 @@ function GetReport() {
     headers: { Authorization: "Bearer " + currentUser.token },
     contentType: "application/pdf",
     success: function() {
-      $(`#navbar`).load(`Navbar.html`);
       MileageRecords();
     }
   });
@@ -697,7 +700,7 @@ function Login() {
                             </form>
                         </div>
                         <div class="card-footer">
-                            <a onclick="Register()">You don't have an account? Register here!</a>
+                            <a onclick="Register()" style="cursor: pointer;">You don't have an account? Register here!</a>
                         </div>
                     </div>`;
 
@@ -754,7 +757,7 @@ function Register() {
   $(`#btn-content`).empty();
   $(`#mileage-records`).empty();
   $(`#login`).empty();
-  $(`#upload`).empty();
+  $(`#uploads`).empty();
 
   let registerDiv = `<div class="card">
                             <div class="card-body">
@@ -777,7 +780,7 @@ function Register() {
                                 </form>
                             </div>
                             <div class="card-footer">
-                                <a onclick="Login()">Already have an acount? Log in here!</a>
+                                <a onclick="Login()" style="cursor: pointer;">Already have an acount? Log in here!</a>
                             </div>
                         </div>`;
 
@@ -859,7 +862,7 @@ function Address() {
   $(`#btn-content`).empty();
   $(`#mileage-records`).empty();
   $(`#login`).empty();
-  $(`#upload`).empty();
+  $(`#uploads`).empty();
 
   let addressDiv = `<div class="card">
                         <div class="card-header">
@@ -954,7 +957,7 @@ function UserProfile() {
   $(`#btn-content`).empty();
   $(`#mileage-records`).empty();
   $(`#login`).empty();
-  $(`#upload`).empty();
+  $(`#uploads`).empty();
 
   let userProfileDiv = `<div class="card">
                           <div class="card-header">
@@ -1028,7 +1031,7 @@ function Services() {
   $(`#btn-content`).empty();
   $(`#mileage-records`).empty();
   $(`#login`).empty();
-  $(`#upload`).empty();
+  $(`#uploads`).empty();
 
   let servicesDiv = `<div class="card">
   <div class="card-body">
@@ -1089,15 +1092,13 @@ function CreateServices() {
 }
 
 // UI for uploading a reciept
-function Upload() {
+function Uploads() {
   $(`#navbar`).load(`Navbar.html`);
   $(`#profile`).empty();
   $(`#btn-content`).empty();
   $(`#mileage-records`).empty();
-  $(`#upload`).empty();
-
-  let plusSign = `<button type="button" class="btn btn-default btn-md" onclick="UploadReciept()">
-                    <span class="fa fa-plus"></span></button>`;
+  $(`#uploads`).empty();
+  $(`#recommendations`).empty();
 
   let form = `<div class="card">
     <div class="card-body">
@@ -1124,19 +1125,19 @@ function Upload() {
         <label for="file">File</label>
         <input type="file" name="file" id="file" class="form-control form-control-file">
       </div>
-      <button id="btnUpload" onclick="Uploads()" class="btn btn-primary">
+      <button id="btnUpload" onclick="Upload()" class="btn btn-primary">
         Upload
       </button>
     </form>
     </div>
   </div>`;
 
-  $(`#upload`).append(form);
+  $(`#uploads`).append(form);
   GetUploads();
 }
 
 // Gets the formdata and sends it to the database
-function Uploads() {
+function Upload() {
   event.preventDefault();
   var formData = new FormData();
   formData.append("file", document.getElementById("file").files[0]);
@@ -1150,14 +1151,12 @@ function Uploads() {
     contentType: false,
     processData: false,
     success: function(data) {
-      console.log(data);
+      Uploads();
     },
     error: function(data) {
-      Home();
+      console.log(data);
     }
   });
-
-  GetUploads();
 }
 
 // Creates a table for uploads
@@ -1183,7 +1182,7 @@ function GetUploads() {
                                 </div>
                             </div>`;
 
-  $(`#upload`).append(uploads);
+  $(`#uploads`).append(uploads);
   $.ajax({
     type: "GET",
     url: "https://localhost:5001/api/Upload",
@@ -1191,7 +1190,6 @@ function GetUploads() {
     contentType: "application/json",
     success: function(uploads) {
       const tBody = $(`#uploads-table`);
-      console.log(uploads);
       tBody.empty();
       $.each(uploads, function(index, upload) {
         let tr = `<tr class="align-middle"></tr>`;
@@ -1233,6 +1231,28 @@ function GetUploads() {
   });
 }
 
+function RemoveUpload(uploadId) {
+  $.ajax({
+    url: "https://localhost:5001/api/Upload/" + uploadId,
+    headers: { Authorization: "Bearer " + currentUser.token },
+    type: "DELETE",
+    success: function() {
+      Uploads();
+    }
+  })
+}
+
+function RemoveMileageRecord(mileagerRecordId) {
+  $.ajax({
+    url: "https://localhost:5001/api/MileageRecord" + "/" + mileagerRecordId,
+    headers: { Authorization: "Bearer " + currentUser.token },
+    type: "DELETE",
+    success: function() {
+      MileageRecords();
+    }
+  });
+}
+
 // Displaying Random UsefulTips
 function GetUsefulTips() {
   let h2el = "<h2></h2>";
@@ -1243,7 +1263,7 @@ function GetUsefulTips() {
     contentType: "application/json",
     success: function(usefulTips) {
       for (let index = 0; index < 3; index++) {
-        let card = `<div class="card text-center mb-4">
+        let card = `<div class="card text-center m-4">
               <div class="card-header">
                 ${usefulTips[index].title}
               </div>
