@@ -1,9 +1,6 @@
 $(`#navbar`).load(`Navbar.html`);
 
 let currentUser = null;
-
-// GetServicesHome();
-
 let apiKey = "";
 let path = new Array();
 let intervalId;
@@ -11,6 +8,7 @@ let startDateTime;
 let endDateTime;
 let service;
 
+// This function starts gets the start date/time and activates get location to get long+lat every 20 sec.
 function StartTracking() {
   let date = new Date();
   startDateTime =
@@ -37,6 +35,7 @@ function StartTracking() {
   intervalId = setInterval(GetLocation, 20000);
 }
 
+// This function clears interval, gets the end date/time, calculates the distance, and sends it to the database
 function EndTracking() {
   clearInterval(intervalId);
   let distance = 0;
@@ -238,6 +237,7 @@ function EndTracking() {
   });
 }
 
+// This function gets location of the user as lat/long
 function GetLocation() {
   if ("geolocation" in navigator) {
     navigator.geolocation.getCurrentPosition(position => {
@@ -255,6 +255,7 @@ function GetLocation() {
   }
 }
 
+// This function calculates the distance in km
 function GetDistanceFromLatLonInKm(lat1, lon1, lat2, lon2) {
   var R = 6371; // Radius of the earth in km
   var dLat = DegreeToRadius(lat2 - lat1); // deg2rad below
@@ -270,10 +271,12 @@ function GetDistanceFromLatLonInKm(lat1, lon1, lat2, lon2) {
   return d;
 }
 
+// Converts degrees to radius
 function DegreeToRadius(deg) {
   return deg * (Math.PI / 180);
 }
 
+// This function gets services for the Home page for selecting service
 function GetServicesHome() {
   let selectService = `<div id="select-service" class="form-group" style="width: 100%; margin: auto; display: block;"></div>`;
   let startTrackingButton = `<button class="btn btn-outline-primary" style="border-radius: 50%; height:100px; width: 100px; display: block; margin: auto;" onclick="StartTracking()" type="button">Start Tracking</button>`;
@@ -303,6 +306,7 @@ function GetServicesHome() {
   $(`#btn-content`).append(startTrackingButton);
 }
 
+// This function displays the Home Page with useful tips, services, and the start button
 function Home() {
   $(`#navbar`).load(`Navbar.html`);
   $(`#login`).empty();
@@ -315,6 +319,7 @@ function Home() {
   GetUsefulTips();
 }
 
+// This function gets the mileage records and puts them on a table
 function MileageRecords() {
   $(`#navbar`).load(`Navbar.html`);
   $(`#btn-content`).empty();
@@ -420,6 +425,7 @@ function MileageRecords() {
   });
 }
 
+// This function removes the mileage record
 function RemoveMileageRecord(mileagerRecordId) {
   $.ajax({
     url: "https://localhost:5001/api/MileageRecord" + "/" + mileagerRecordId,
@@ -431,6 +437,7 @@ function RemoveMileageRecord(mileagerRecordId) {
   });
 }
 
+// This function loads the profile page including user information, selected services, address, etc.
 function Profile() {
   $(`#navbar`).load(`Navbar.html`);
   $(`#profile`).empty();
@@ -585,6 +592,7 @@ function Profile() {
   GetServices();
 }
 
+// This function gets services for the Profile Page
 function GetServices() {
   $.ajax({
     type: "GET",
@@ -613,6 +621,7 @@ function GetServices() {
   });
 }
 
+// Removes a service from selected services
 function RemoveService(serviceId) {
   $.ajax({
     url: "https://localhost:5001/api/Service" + "/" + serviceId,
@@ -624,6 +633,7 @@ function RemoveService(serviceId) {
   });
 }
 
+// This function adds all new selected services
 function AddServices() {
   let selectedServices = $(`#select-service`).val();
   $(`[name="addServices"]`).empty();
@@ -654,6 +664,7 @@ function AddServices() {
   }
 }
 
+// This function calls the report method in the controller to send a PDF file to user's email
 function GetReport() {
   event.preventDefault();
   $.ajax({
@@ -668,6 +679,7 @@ function GetReport() {
   });
 }
 
+// Login page display and post request to the database
 function Login() {
   let loginDiv = `<div class="card">
                         <div class="card-body">
@@ -719,6 +731,7 @@ function Login() {
   });
 }
 
+// Logs out the logged user
 function Logout() {
   $.ajax({
     type: "POST",
@@ -734,6 +747,7 @@ function Logout() {
   });
 }
 
+// For registering new user UI
 function Register() {
   $(`#navbar`).load(`Navbar.html`);
   $(`#profile`).empty();
@@ -770,6 +784,7 @@ function Register() {
   $(`#login`).append(registerDiv);
 }
 
+// This function sends a post request to the server for newly registered user
 function CreateUser() {
   let addEmailSpan = $(`[name="addEmail"]`);
   let addPassowrdSpan = $(`[name="addPassword"]`);
@@ -819,6 +834,7 @@ function CreateUser() {
   }
 }
 
+// Comparing two passwords
 function ComparePasswords(passwordOne, passwordTwo) {
   if (passwordOne === passwordTwo) {
     return true;
@@ -827,6 +843,7 @@ function ComparePasswords(passwordOne, passwordTwo) {
   }
 }
 
+// Validates email
 function ValidateEmail(email) {
   if (/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(email)) {
     return true;
@@ -834,6 +851,7 @@ function ValidateEmail(email) {
   return false;
 }
 
+// Loads the Address Page for the Profile
 function Address() {
   // $(`#navbar`).load(`Navbar.html`);
   $(`#navbar`).empty();
@@ -884,6 +902,7 @@ function Address() {
   $(`#login`).append(addressDiv);
 }
 
+// Sends post request to the database for user's address
 function CreateAddress() {
   $(`[name="addAddressLineOne"]`).empty();
   $(`[name="addCity"]`).empty();
@@ -928,6 +947,7 @@ function CreateAddress() {
   }
 }
 
+// UI for creating userprofile
 function UserProfile() {
   $(`#navbar`).empty();
   $(`#profile`).empty();
@@ -967,6 +987,7 @@ function UserProfile() {
   $(`#login`).append(userProfileDiv);
 }
 
+// Sends the post request to the database for the new user
 function CreateUserProfile() {
   const userProfile = {
     FirstName: $(`#add-first-name`).val(),
@@ -1001,6 +1022,7 @@ function CreateUserProfile() {
   }
 }
 
+// UI for selecting services
 function Services() {
   $(`#profile`).empty();
   $(`#btn-content`).empty();
@@ -1036,6 +1058,7 @@ function Services() {
   $("select").selectpicker();
 }
 
+// Sends post request to the database for the selected services and adds them to the database for the logged user
 function CreateServices() {
   let selectedServices = $(`#select-service`).val();
   $(`[name="addServices"]`).empty();
@@ -1065,6 +1088,7 @@ function CreateServices() {
   }
 }
 
+// UI for uploading a reciept
 function Upload() {
   $(`#navbar`).load(`Navbar.html`);
   $(`#profile`).empty();
@@ -1111,6 +1135,7 @@ function Upload() {
   GetUploads();
 }
 
+// Gets the formdata and sends it to the database
 function Uploads() {
   event.preventDefault();
   var formData = new FormData();
@@ -1135,6 +1160,7 @@ function Uploads() {
   GetUploads();
 }
 
+// Creates a table for uploads
 function GetUploads() {
   let header = `<h5 class="text-center mt-2">Uploads</h5>`;
   let uploads = `<div class="card shadow" style="margin: auto; width: 100%; margin-top: 10px;">
